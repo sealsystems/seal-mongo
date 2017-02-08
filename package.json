@@ -1,6 +1,6 @@
 {
   "name": "seal-mongo",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "description": "seal-mongo makes it easy to connect to MongoDB reliably.",
   "author": {
     "name": "SEAL Systems AG",
