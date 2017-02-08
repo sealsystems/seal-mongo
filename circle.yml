@@ -1,0 +1,59 @@
+################################################################################
+# OPEN SOURCE MODULE
+# Remove the comment if you changed the build scripts!
+################################################################################
+
+machine:
+  timezone: Europe/Berlin
+
+  environment:
+    MONGO_VERSION: 3.2.9
+    CONSUL_VERSION: 0.7.2
+
+  services:
+    - docker
+
+  node:
+    version: 6.2.2
+
+dependencies:
+  pre:
+    # Setup Node.js and Docker
+    - curl -u "${ARTIFACTORY_CREDENTIAL}" "https://plossys.jfrog.io/plossys/api/npm/auth" > ~/.npmrc
+    - npm config set registry http://plossys.jfrog.io/plossys/api/npm/npm-repo
+    - docker login ${DOCKERHUB_LOGIN}
+    # Copy TLS cert to /etc/tls/ for further use
+    - sudo cp -r tls /etc
+    # Start Consul
+    - >
+      docker run -d --name consul -v /etc/tls:/tls -p 8400:8400 -p 8500:8500 -p 127.0.0.1:53:8600/udp -e 'CONSUL_LOCAL_CONFIG={
+        "cert_file": "/tls/cert.pem",
+        "key_file": "/tls/key.pem",
+        "ports": {
+          "http": -1,
+          "https": 8500
+        },
+        "server": true
+      }' consul:${CONSUL_VERSION}
+    # Install MongoDB with SSL
+    - if [[ ! -d mongodb-linux-x86_64-ubuntu1404-${MONGO_VERSION} ]]; then wget https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu1404-${MONGO_VERSION}.tgz && tar xvzf mongodb-linux-x86_64-ubuntu1404-${MONGO_VERSION}.tgz; fi
+    - sudo service mongod stop
+    - >
+      echo -e "storage:
+        mmapv1:
+          smallFiles: true
+        journal:
+          enabled: false
+        preallocDataFiles: false
+      net:
+        ssl:
+          mode: requireSSL
+          PEMKeyFile: /etc/tls/cert-key-combined.pem
+      " | sudo tee /etc/mongod.conf
+    - sudo cp mongodb-linux-x86_64-ubuntu1404-${MONGO_VERSION}/bin/* /usr/bin
+    - sudo service mongod start
+
+test:
+  override:
+    - npm install -g roboter-cli
+    - npm run bot
