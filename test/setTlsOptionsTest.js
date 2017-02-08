@@ -64,21 +64,6 @@ suite('setTlsOptions', () => {
     });
   });
 
-  test('does not set TLS options if TLS_UNPROTECTED is set to \'world\'.', (done) => {
-    const options = {
-      foo: 'bar'
-    };
-
-    nodeenv('TLS_UNPROTECTED', 'world', (restore) => {
-      setTlsOptions(options);
-      assert.that(options).is.equalTo({
-        foo: 'bar'
-      });
-      restore();
-      done();
-    });
-  });
-
   test('enforces SSL encryption.', (done) => {
     const options = {
       foo: 'bar'
