@@ -15,45 +15,11 @@ version: "{build}"
 environment:
   NODE_VERSION: "6.2.2"
   MONGO_VERSION: "3.2.9"
-  NSSM_VERSION: "2.24-23-gfb96938"
-  CONSUL_VERSION: 0.7.2
-  ARTIFACTORY_USER:
-    secure: /B+ct89KcPR4erKZ35W6XA==
-  ARTIFACTORY_PASSWORD:
-    secure: l3K9bhvKpkX7Ir+9CoUvIg==
-  PfxUri:
-    secure: xJp8gfF/VTZm0xoSPUntkJpAEa+ZwAwsc62eX4PVqqpFda2Bz59T/xhPpDhU8zugtwx6VzV3m8DXJUVQ5Ld1ssmmQbFLHFyAkWTwvy9FQ/A=
-  KeyFile: C:\projects\seal.pfx
-  CertPassword:
-    secure: Du5UE790JqGIWGOiuH/V5Q==
-  SignTool: C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe
 
 install:
-  - ps: choco install -y curl
   # Install Node.js
   - ps: Install-Product node $env:NODE_VERSION x64
-  - curl -k -u %ARTIFACTORY_USER%:%ARTIFACTORY_PASSWORD% https://plossys.jfrog.io/plossys/api/npm/auth > %USERPROFILE%\.npmrc
-  - curl -k -u %ARTIFACTORY_USER%:%ARTIFACTORY_PASSWORD% %PfxUri% > %KeyFile%
-  - npm config set registry http://plossys.jfrog.io/plossys/api/npm/npm-repo
-  # Install Consul
-  - ps: >-
-      choco install -y consul -version $env:CONSUL_VERSION
 
-      @{
-        bind_addr="127.0.0.1"
-        bootstrap_expect=1
-        cert_file="C:\projects\$($env:APPVEYOR_PROJECT_NAME)\tls\cert.pem"
-        data_dir="C:\ProgramData\consul\data"
-        key_file="C:\projects\$($env:APPVEYOR_PROJECT_NAME)\tls\key.pem"
-        ports=@{
-          dns=53
-          http=-1
-          https=8500
-        }
-        server=$True
-      } | ConvertTo-Json | Out-File -Filepath C:\ProgramData\consul\config\config.json -Encoding ascii
-
-      nssm start consul
   # Install MongoDB with SSL
   - ps: >-
       Write-Host "Uninstalling old MongoDB..."

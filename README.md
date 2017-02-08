@@ -1,5 +1,8 @@
 # seal-mongo
 
+[![CircleCI](https://circleci.com/gh/sealsystems/seal-mongo.svg?style=svg)](https://circleci.com/gh/sealsystems/seal-mongo)
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/snpc0tybrw04l6b8?svg=true)](https://ci.appveyor.com/project/Plossys/seal-mongo)
+
 seal-mongo makes it easy to connect to MongoDB reliably.
 
 ## Installation
