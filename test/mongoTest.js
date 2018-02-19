@@ -1,530 +1,440 @@
 'use strict';
 
+const util = require('util');
+
 const assert = require('assertthat');
-const moment = require('moment');
+const measureTime = require('measure-time');
 const proxyquire = require('proxyquire');
-const uuid = require('uuid');
+const uuid = require('uuidv4');
 
 const mongo = require('../lib/mongo');
+
 const mongoMock = proxyquire('../lib/mongo', {
-  './setTlsOptions' (options) {
+  async './setTlsOptions' (options) {
     options.sslCA = ['ca'];
     options.sslCert = 'cert';
     options.sslKey = 'key';
     options.sslValidate = true;
+
     return options;
   },
+
   mongodb: {
     MongoClient: {
-      connect (connectionString, options, callback) {
-        callback(null, options);
+      async connect (connectionString, options) {
+        return {
+          async db () {
+            return options;
+          }
+        };
       }
     }
   }
 });
+
+const sleep = util.promisify(setTimeout);
+
 const mongoHost = require('docker-host')().host;
 
 const connectionString = `mongodb://${mongoHost}:27017/foo`;
 const connectionStringOther = `mongodb://${mongoHost}:27017/bar`;
 
 suite('mongo', () => {
-  test('is an object.', (done) => {
+  test('is an object.', async () => {
     assert.that(mongo).is.ofType('object');
-    done();
   });
 
   suite('db', () => {
-    test('is a function.', (done) => {
+    test('is a function.', async () => {
       assert.that(mongo.db).is.ofType('function');
-      done();
     });
 
-    test('throws an exception if connection string is missing.', (done) => {
-      assert.that(() => {
-        mongo.db();
-      }).is.throwing('Connection string is missing.');
-      done();
+    test('throws an exception if connection string is missing.', async () => {
+      await assert.that(async () => {
+        await mongo.db();
+      }).is.throwingAsync('Connection string is missing.');
     });
 
-    test('throws an exception if callback is missing.', (done) => {
-      assert.that(() => {
-        mongo.db(connectionString);
-      }).is.throwing('Callback is missing.');
-      done();
-    });
-
-    test('throws an exception if callback is missing even if options are given.', (done) => {
-      assert.that(() => {
-        mongo.db(connectionString, {});
-      }).is.throwing('Callback is missing.');
-      done();
-    });
-
-    test('throws an error if the given MongoDB is not reachable.', function (done) {
+    test('throws an error if the given MongoDB is not reachable.', async function () {
       this.timeout(10 * 1000);
 
-      const start = moment();
-      const listeners = process.listeners('uncaughtException');
+      const getElapsed = measureTime();
 
-      process.removeAllListeners('uncaughtException');
-      process.once('uncaughtException', (err) => {
-        assert.that(err).is.not.null();
-        assert.that(err.name).is.equalTo('MongoError');
-        listeners.forEach((cb) => {
-          process.on('uncaughtException', cb);
+      await assert.that(async () => {
+        await mongo.db('mongodb://localhost:12345/foo', {
+          connectionRetries: 1,
+          waitTimeBetweenRetries: 1000
         });
-        const duration = moment.duration(moment().diff(start));
+      }).is.throwingAsync((ex) => ex.name === 'MongoNetworkError');
 
-        assert.that(duration.seconds()).is.between(1, 10);
-        done();
-      });
+      const { seconds } = getElapsed();
 
-      mongo.db('mongodb://localhost:12345/foo', {
-        connectionRetries: 1,
-        waitTimeBetweenRetries: 1000
-      }, () => {
-        assert.that(true).is.false();
-      });
+      assert.that(seconds).is.between(1, 10);
     });
 
-    test('connectionRetries equals to 0 does try to connect only once.', function (done) {
+    test('connectionRetries equals to 0 does try to connect only once.', async function () {
       this.timeout(2 * 1000);
-      const start = moment();
-      const listeners = process.listeners('uncaughtException');
 
-      process.removeAllListeners('uncaughtException');
-      process.once('uncaughtException', (err) => {
-        assert.that(err).is.not.null();
-        assert.that(err.name).is.equalTo('MongoError');
-        listeners.forEach((cb) => {
-          process.on('uncaughtException', cb);
+      const getElapsed = measureTime();
+
+      await assert.that(async () => {
+        await mongo.db('mongodb://localhost:12345/foo', {
+          connectionRetries: 0,
+          waitTimeBetweenRetries: 1000
         });
-        const duration = moment.duration(moment().diff(start));
+      }).is.throwingAsync((ex) => ex.name === 'MongoNetworkError');
 
-        assert.that(duration.seconds()).is.between(0, 2);
-        done();
-      });
+      const { seconds } = getElapsed();
 
-      mongo.db('mongodb://localhost:12345/foo', {
-        connectionRetries: 0,
-        waitTimeBetweenRetries: 1000
-      }, () => {
-        assert.that(true).is.false();
-      });
+      assert.that(seconds).is.between(0, 2);
     });
 
-    test('returns a reference to the database.', function (done) {
+    test('returns a reference to the database.', async function () {
       this.timeout(10 * 1000);
-      mongo.db(connectionString, (err, db) => {
-        assert.that(err).is.null();
-        assert.that(db).is.ofType('object');
-        assert.that(db.collection).is.ofType('function');
-        done();
-      });
+
+      const db = await mongo.db(connectionString);
+
+      assert.that(db).is.ofType('object');
+      assert.that(db.collection).is.ofType('function');
     });
 
-    test('validates with given CA certificate.', (done) => {
-      mongoMock.db(connectionString, (err, connectOptions) => {
-        assert.that(err).is.null();
-        assert.that(connectOptions).is.ofType('object');
-        assert.that(connectOptions.sslCA).is.equalTo(['ca']);
-        assert.that(connectOptions.sslValidate).is.true();
-        done();
-      });
+    test('validates with given CA certificate.', async () => {
+      const connectOptions = await mongoMock.db(connectionString);
+
+      assert.that(connectOptions).is.ofType('object');
+      assert.that(connectOptions.sslCA).is.equalTo(['ca']);
+      assert.that(connectOptions.sslValidate).is.true();
     });
 
-    test('returns the same reference if called twice with the same connection string.', (done) => {
-      mongo.db(connectionString, (errFirst, dbFirst) => {
-        assert.that(errFirst).is.null();
-        mongo.db(connectionString, (errSecond, dbSecond) => {
-          assert.that(errSecond).is.null();
-          assert.that(dbFirst).is.sameAs(dbSecond);
-          done();
-        });
-      });
+    test('returns the same reference if called twice with the same connection string.', async () => {
+      const dbFirst = await mongo.db(connectionString);
+      const dbSecond = await mongo.db(connectionString);
+
+      assert.that(dbFirst).is.sameAs(dbSecond);
     });
 
-    test('returns different references if called twice with different connection strings.', (done) => {
-      mongo.db(connectionString, (errFirst, dbFirst) => {
-        assert.that(errFirst).is.null();
-        mongo.db(connectionStringOther, (errSecond, dbSecond) => {
-          assert.that(errSecond).is.null();
-          assert.that(dbFirst).is.not.sameAs(dbSecond);
-          done();
-        });
-      });
+    test('returns different references if called twice with different connection strings.', async () => {
+      const dbFirst = await mongo.db(connectionString);
+      const dbSecond = await mongo.db(connectionStringOther);
+
+      assert.that(dbFirst).is.not.sameAs(dbSecond);
     });
 
-    test('connects to database', (done) => {
-      mongo.db(connectionString, (errFirst, db) => {
-        assert.that(errFirst).is.null();
-        const coll = db.collection(uuid.v4());
+    test('connects to database', async () => {
+      const db = await mongo.db(connectionString);
+      const coll = db.collection(uuid());
 
-        coll.insert({ foo: 'bar' }, (errInsert) => {
-          assert.that(errInsert).is.null();
-          done();
-        });
-      });
+      await assert.that(async () => {
+        await coll.insert({ foo: 'bar' });
+      }).is.not.throwingAsync();
     });
 
     suite('gridfs', () => {
-      test('is a function.', (done) => {
-        mongo.db(connectionString, (err, db) => {
-          assert.that(err).is.null();
-          assert.that(db.gridfs).is.ofType('function');
-          done();
-        });
+      test('is a function.', async () => {
+        const db = await mongo.db(connectionString);
+
+        assert.that(db.gridfs).is.ofType('function');
       });
 
-      test('returns a reference to GridFS.', (done) => {
-        mongo.db(connectionString, (err, db) => {
-          assert.that(err).is.null();
+      test('returns a reference to GridFS.', async () => {
+        const db = await mongo.db(connectionString);
 
-          const gridfs = db.gridfs();
+        const gridfs = db.gridfs();
 
-          assert.that(gridfs).is.ofType('object');
-          assert.that(gridfs.createReadStream).is.ofType('function');
-          done();
-        });
+        assert.that(gridfs).is.ofType('object');
+        assert.that(gridfs.createReadStream).is.ofType('function');
       });
 
       suite('createReadStream', () => {
-        test('throws an error if filename is missing', (done) => {
-          mongo.db(connectionString, (err, db) => {
-            assert.that(err).is.null();
+        test('throws an error if filename is missing', async () => {
+          const db = await mongo.db(connectionString);
 
-            assert.that(() => {
-              db.gridfs().createReadStream();
-            }).is.throwing('Filename is missing.');
-            done();
-          });
+          await assert.that(async () => {
+            await db.gridfs().createReadStream();
+          }).is.throwingAsync('Filename is missing.');
         });
 
-        test('throws an error if callback is missing', (done) => {
-          mongo.db(connectionString, (err, db) => {
-            assert.that(err).is.null();
+        test('returns an error if file could not be opened', async () => {
+          const db = await mongo.db(connectionString);
+          const gridfs = db.gridfs();
 
-            assert.that(() => {
-              db.gridfs().createReadStream(uuid.v4());
-            }).is.throwing('Callback is missing.');
-            done();
-          });
+          const fileName = uuid();
+
+          await assert.that(async () => {
+            await gridfs.createReadStream(fileName);
+          }).is.throwingAsync();
         });
 
-        test('returns an error if file could not be opened', (done) => {
-          mongo.db(connectionString, (err, db) => {
-            const fileName = uuid.v4();
+        test('reads file', async () => {
+          const db = await mongo.db(connectionString);
+          const gridfs = db.gridfs();
 
-            assert.that(err).is.null();
+          const fileName = uuid();
+          const content = 'hohoho';
 
-            const gridfs = db.gridfs();
+          const writeStream = await gridfs.createWriteStream(fileName);
 
-            gridfs.createReadStream(fileName, (errRead) => {
-              assert.that(errRead).is.not.null();
-              done();
-            });
-          });
-        });
+          writeStream.write(content);
+          writeStream.end();
 
-        test('reads file', (done) => {
-          mongo.db(connectionString, (err, db) => {
-            const fileName = uuid.v4();
-            const content = 'hohoho';
+          // Wait for a short amount of time to give MongoDB enough time to
+          // actually save the file to GridFS.
+          await sleep(0.1 * 1000);
 
-            assert.that(err).is.null();
+          await new Promise(async (resolve, reject) => {
+            try {
+              const result = await gridfs.exist(fileName);
 
-            const gridfs = db.gridfs();
+              assert.that(result).is.true();
 
-            gridfs.createWriteStream(fileName, (errCreate, stream) => {
-              assert.that(errCreate).is.null();
-              stream.on('close', () => {
-                gridfs.exist(fileName, (errExist, result) => {
-                  assert.that(errExist).is.null();
-                  assert.that(result).is.true();
+              const { stream } = await gridfs.createReadStream(fileName);
 
-                  gridfs.createReadStream(fileName, (errRead, inStream) => {
-                    assert.that(errRead).is.null();
-                    inStream.on('data', (chunk) => {
-                      assert.that(chunk.toString()).is.equalTo(content);
-                    });
-                    inStream.once('end', done);
-                  });
-                });
+              stream.on('data', (chunk) => {
+                try {
+                  assert.that(chunk.toString()).is.equalTo(content);
+                } catch (ex) {
+                  reject(ex);
+                }
               });
-              stream.write(content);
-              stream.end();
-            });
+              stream.once('end', resolve);
+            } catch (ex) {
+              reject(ex);
+            }
           });
         });
 
-        test('reads file with metadata', (done) => {
-          mongo.db(connectionString, (err, db) => {
-            const fileName = uuid.v4();
-            const content = 'hohoho';
-            const metadata = { foo: 'bar' };
+        test('reads file with metadata', async () => {
+          const db = await mongo.db(connectionString);
+          const gridfs = db.gridfs();
 
-            assert.that(err).is.null();
+          const fileName = uuid();
+          const content = 'hohoho';
+          const writeMetadata = { foo: 'bar' };
 
-            const gridfs = db.gridfs();
+          const writeStream = await gridfs.createWriteStream(fileName, writeMetadata);
 
-            gridfs.createWriteStream(fileName, metadata, (errCreate, stream) => {
-              assert.that(errCreate).is.null();
-              stream.on('close', () => {
-                gridfs.exist(fileName, (errExist, result) => {
-                  assert.that(errExist).is.null();
-                  assert.that(result).is.true();
+          writeStream.write(content);
+          writeStream.end();
 
-                  gridfs.createReadStream(fileName, (errRead, inStream, inMetadata) => {
-                    assert.that(errRead).is.null();
-                    assert.that(inMetadata).is.equalTo({ foo: 'bar' });
-                    inStream.on('data', (chunk) => {
-                      assert.that(chunk.toString()).is.equalTo(content);
-                    });
-                    inStream.once('end', done);
-                  });
-                });
+          // Wait for a short amount of time to give MongoDB enough time to
+          // actually save the file to GridFS.
+          await sleep(0.1 * 1000);
+
+          const result = await gridfs.exist(fileName);
+
+          assert.that(result).is.true();
+
+          await new Promise(async (resolve, reject) => {
+            try {
+              const { stream, metadata } = await gridfs.createReadStream(fileName);
+
+              assert.that(metadata).is.equalTo({ foo: 'bar' });
+
+              stream.on('data', (chunk) => {
+                try {
+                  assert.that(chunk.toString()).is.equalTo(content);
+                } catch (ex) {
+                  reject(ex);
+                }
               });
-              stream.write(content);
-              stream.end();
-            });
+              stream.once('end', resolve);
+            } catch (ex) {
+              reject(ex);
+            }
           });
         });
       });
 
       suite('createWriteStream', () => {
-        test('throws an error if filename is missing', (done) => {
-          mongo.db(connectionString, (err, db) => {
-            assert.that(err).is.null();
+        test('throws an error if filename is missing', async () => {
+          const db = await mongo.db(connectionString);
 
-            assert.that(() => {
-              db.gridfs().createWriteStream();
-            }).is.throwing('Filename is missing.');
-            done();
-          });
+          await assert.that(async () => {
+            await db.gridfs().createWriteStream();
+          }).is.throwingAsync('Filename is missing.');
         });
 
-        test('throws an error if callback is missing', (done) => {
-          mongo.db(connectionString, (err, db) => {
-            assert.that(err).is.null();
+        test('writes file', async () => {
+          const db = await mongo.db(connectionString);
+          const gridfs = db.gridfs();
 
-            assert.that(() => {
-              db.gridfs().createWriteStream(uuid.v4());
-            }).is.throwing('Callback is missing.');
-            done();
-          });
-        });
+          const fileName = uuid();
+          const content = 'hohoho';
 
-        test('writes file', (done) => {
-          mongo.db(connectionString, (err, db) => {
-            const fileName = uuid.v4();
-            const content = 'hohoho';
+          const writeStream = await gridfs.createWriteStream(fileName);
 
-            assert.that(err).is.null();
+          writeStream.write(content);
+          writeStream.end();
 
-            const gridfs = db.gridfs();
+          // Wait for a short amount of time to give MongoDB enough time to
+          // actually save the file to GridFS.
+          await sleep(0.1 * 1000);
 
-            gridfs.createWriteStream(fileName, (errCreate, stream) => {
-              assert.that(errCreate).is.null();
-              stream.on('close', () => {
-                gridfs.exist(fileName, (errExist, result) => {
-                  assert.that(errExist).is.null();
-                  assert.that(result).is.true();
+          const result = await gridfs.exist(fileName);
 
-                  gridfs.createReadStream(fileName, (errRead, inStream) => {
-                    assert.that(errRead).is.null();
-                    inStream.on('data', (chunk) => {
-                      assert.that(chunk.toString()).is.equalTo(content);
-                    });
-                    inStream.once('end', done);
-                  });
-                });
+          assert.that(result).is.true();
+
+          await new Promise(async (resolve, reject) => {
+            try {
+              const { stream } = await gridfs.createReadStream(fileName);
+
+              stream.on('data', (chunk) => {
+                try {
+                  assert.that(chunk.toString()).is.equalTo(content);
+                } catch (ex) {
+                  reject(ex);
+                }
               });
-              stream.write(content);
-              stream.end();
-            });
+
+              stream.once('end', resolve);
+            } catch (ex) {
+              reject(ex);
+            }
           });
         });
 
-        test('writes file with metadata', (done) => {
-          mongo.db(connectionString, (err, db) => {
-            const fileName = uuid.v4();
-            const content = 'hohoho';
-            const metadata = { foo: 'bar' };
+        test('writes file with metadata', async () => {
+          const db = await mongo.db(connectionString);
+          const gridfs = db.gridfs();
 
-            assert.that(err).is.null();
+          const fileName = uuid();
+          const content = 'hohoho';
+          const writeMetadata = { foo: 'bar' };
 
-            const gridfs = db.gridfs();
+          const writeStream = await gridfs.createWriteStream(fileName, writeMetadata);
 
-            gridfs.createWriteStream(fileName, metadata, (errCreate, stream) => {
-              assert.that(errCreate).is.null();
-              stream.on('close', () => {
-                gridfs.exist(fileName, (errExist, result) => {
-                  assert.that(errExist).is.null();
-                  assert.that(result).is.true();
+          writeStream.write(content);
+          writeStream.end();
 
-                  gridfs.createReadStream(fileName, (errRead, inStream, inMetadata) => {
-                    assert.that(errRead).is.null();
-                    assert.that(inMetadata).is.equalTo({ foo: 'bar' });
-                    inStream.on('data', (chunk) => {
-                      assert.that(chunk.toString()).is.equalTo(content);
-                    });
-                    inStream.once('end', done);
-                  });
-                });
+          // Wait for a short amount of time to give MongoDB enough time to
+          // actually save the file to GridFS.
+          await sleep(0.1 * 1000);
+
+          const result = await gridfs.exist(fileName);
+
+          assert.that(result).is.true();
+
+          await new Promise(async (resolve, reject) => {
+            try {
+              const { stream, metadata } = await gridfs.createReadStream(fileName);
+
+              assert.that(metadata).is.equalTo({ foo: 'bar' });
+
+              stream.on('data', (chunk) => {
+                try {
+                  assert.that(chunk.toString()).is.equalTo(content);
+                } catch (ex) {
+                  reject(ex);
+                }
               });
-              stream.write(content);
-              stream.end();
-            });
+              stream.once('end', resolve);
+            } catch (ex) {
+              reject(ex);
+            }
           });
         });
 
-        test('updates metadata', (done) => {
-          mongo.db(connectionString, (err, db) => {
-            const fileName = uuid.v4();
-            const content = 'hohoho';
-            const metadata = ['1', '2', '3'];
+        test('updates metadata', async () => {
+          const db = await mongo.db(connectionString);
+          const gridfs = db.gridfs();
 
-            assert.that(err).is.null();
+          const fileName = uuid();
+          const content = 'hohoho';
+          const writeStream = await gridfs.createWriteStream(fileName);
 
-            const gridfs = db.gridfs();
+          writeStream.write(content);
+          writeStream.end();
 
-            gridfs.createWriteStream(fileName, null, (errCreate, stream) => {
-              assert.that(errCreate).is.null();
-              stream.on('close', () => {
-                gridfs.setMetadata(fileName, metadata, (errSet, result) => {
-                  assert.that(errSet).is.null();
-                  assert.that(result.result.ok).is.equalTo(1);
-                  assert.that(result.result.n).is.equalTo(1);
-                  gridfs.findFile(fileName, (errFind, fileData) => {
-                    assert.that(errFind).is.null();
-                    assert.that(fileData.metadata).is.equalTo(metadata);
-                    done();
-                  });
-                });
-              });
-              stream.write(content);
-              stream.end();
-            });
-          });
+          // Wait for a short amount of time to give MongoDB enough time to
+          // actually save the file to GridFS.
+          await sleep(0.1 * 1000);
+
+          const metadata = ['1', '2', '3'];
+          const result = await gridfs.setMetadata(fileName, metadata);
+
+          assert.that(result.result.ok).is.equalTo(1);
+          assert.that(result.result.n).is.equalTo(1);
+
+          const fileData = await gridfs.findFile(fileName);
+
+          assert.that(fileData.metadata).is.equalTo(metadata);
         });
       });
 
       suite('exist', () => {
-        test('throws an error if filename is missing', (done) => {
-          mongo.db(connectionString, (err, db) => {
-            assert.that(err).is.null();
+        test('throws an error if filename is missing', async () => {
+          const db = await mongo.db(connectionString);
 
-            assert.that(() => {
-              db.gridfs().exist();
-            }).is.throwing('Filename is missing.');
-            done();
-          });
+          await assert.that(async () => {
+            await db.gridfs().exist();
+          }).is.throwingAsync('Filename is missing.');
         });
 
-        test('throws an error if callback is missing', (done) => {
-          mongo.db(connectionString, (err, db) => {
-            assert.that(err).is.null();
+        test('returns false if file does not exist', async () => {
+          const db = await mongo.db(connectionString);
+          const fileName = uuid();
 
-            assert.that(() => {
-              db.gridfs().exist(uuid.v4());
-            }).is.throwing('Callback is missing.');
-            done();
-          });
+          const result = await db.gridfs().exist(fileName);
+
+          assert.that(result).is.false();
         });
 
-        test('returns false if file does not exist', (done) => {
-          mongo.db(connectionString, (err, db) => {
-            const fileName = uuid.v4();
+        test('returns true if file exists', async () => {
+          const db = await mongo.db(connectionString);
+          const gridfs = db.gridfs();
 
-            assert.that(err).is.null();
+          const fileName = uuid();
+          const content = 'hohoho';
 
-            db.gridfs().exist(fileName, (errExist, result) => {
-              assert.that(errExist).is.null();
-              assert.that(result).is.false();
-              done();
-            });
-          });
-        });
+          const stream = await gridfs.createWriteStream(fileName);
 
-        test('returns true if file exists', (done) => {
-          mongo.db(connectionString, (err, db) => {
-            const fileName = uuid.v4();
-            const content = 'hohoho';
+          stream.write(content);
+          stream.end();
 
-            assert.that(err).is.null();
+          // Wait for a short amount of time to give MongoDB enough time to
+          // actually save the file to GridFS.
+          await sleep(0.1 * 1000);
 
-            const gridfs = db.gridfs();
+          const result = await gridfs.exist(fileName);
 
-            gridfs.createWriteStream(fileName, (errCreate, stream) => {
-              assert.that(errCreate).is.null();
-              stream.on('close', () => {
-                gridfs.exist(fileName, (errExist, result) => {
-                  assert.that(errExist).is.null();
-                  assert.that(result).is.true();
-                  done();
-                });
-              });
-              stream.write(content);
-              stream.end();
-            });
-          });
+          assert.that(result).is.true();
         });
       });
 
       suite('unlink', () => {
-        test('throws an error if filename is missing', (done) => {
-          mongo.db(connectionString, (err, db) => {
-            assert.that(err).is.null();
+        test('throws an error if filename is missing', async () => {
+          const db = await mongo.db(connectionString);
 
-            assert.that(() => {
-              db.gridfs().unlink();
-            }).is.throwing('Filename is missing.');
-            done();
-          });
+          await assert.that(async () => {
+            await db.gridfs().unlink();
+          }).is.throwingAsync('Filename is missing.');
         });
 
-        test('throws an error if callback is missing', (done) => {
-          mongo.db(connectionString, (err, db) => {
-            assert.that(err).is.null();
+        test('unlinks file', async () => {
+          const db = await mongo.db(connectionString);
+          const gridfs = db.gridfs();
 
-            assert.that(() => {
-              db.gridfs().unlink(uuid.v4());
-            }).is.throwing('Callback is missing.');
-            done();
-          });
-        });
+          const fileName = uuid();
+          const content = 'hohoho';
 
-        test('unlinks file', (done) => {
-          mongo.db(connectionString, (err, db) => {
-            const fileName = uuid.v4();
-            const content = 'hohoho';
+          const stream = await gridfs.createWriteStream(fileName);
 
-            assert.that(err).is.null();
+          stream.write(content);
+          stream.end();
 
-            const gridfs = db.gridfs();
+          // Wait for a short amount of time to give MongoDB enough time to
+          // actually save the file to GridFS.
+          await sleep(0.1 * 1000);
 
-            gridfs.createWriteStream(fileName, (errCreate, stream) => {
-              assert.that(errCreate).is.null();
-              stream.on('close', () => {
-                gridfs.exist(fileName, (errExist, result) => {
-                  assert.that(errExist).is.null();
-                  assert.that(result).is.true();
+          const result = await gridfs.exist(fileName);
 
-                  gridfs.unlink(fileName, (errUnlink) => {
-                    assert.that(errUnlink).is.null();
+          assert.that(result).is.true();
 
-                    gridfs.exist(fileName, (errExist2, result2) => {
-                      assert.that(errExist2).is.null();
-                      assert.that(result2).is.false();
-                      done();
-                    });
-                  });
-                });
-              });
-              stream.write(content);
-              stream.end();
-            });
-          });
+          await gridfs.unlink(fileName);
+
+          const result2 = await gridfs.exist(fileName);
+
+          assert.that(result2).is.false();
         });
       });
     });

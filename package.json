@@ -1,7 +1,7 @@
 {
-  "name": "seal-mongo",
+  "name": "@sealsystems/mongo",
   "version": "2.1.4",
-  "description": "seal-mongo makes it easy to connect to MongoDB reliably.",
+  "description": "@sealsystems/mongo makes it easy to connect to MongoDB reliably.",
   "author": {
     "name": "SEAL Systems AG",
     "email": "opensource@sealsystems.de",
@@ -20,22 +20,25 @@
   "main": "lib/mongo.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sealsystems/seal-mongo.git"
+    "url": "https://github.com/sealsystems/node-mongo.git"
   },
   "dependencies": {
-    "getenv": "0.7.0",
-    "mongodb": "2.2.22",
-    "retry": "0.10.1",
-    "seal-tlscert": "1.2.1"
+    "@sealsystems/tlscert": "2.0.0",
+    "async-retry": "1.1.4",
+    "babel-register": "6.26.0",
+    "mongodb": "3.0.2",
+    "mongodb-uri": "0.9.7",
+    "processenv": "1.0.0"
   },
   "devDependencies": {
-    "assertthat": "0.8.3",
+    "@sealsystems/eslint-config-es": "1.1.1",
+    "assertthat": "1.0.0",
     "docker-host": "3.1.0",
-    "eslint-config-seal": "0.0.9",
-    "moment": "2.17.1",
-    "proxyquire": "1.7.11",
-    "roboter": "0.14.4",
-    "roboter-server": "0.14.4",
-    "uuid": "3.0.1"
+    "measure-time": "3.1.1",
+    "nodeenv": "1.0.0",
+    "proxyquire": "1.8.0",
+    "roboter": "0.16.0",
+    "roboter-server": "0.16.0",
+    "uuidv4": "1.0.0"
   }
 }
