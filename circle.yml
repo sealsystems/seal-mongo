@@ -1,18 +1,38 @@
-################################################################################
-# OPEN SOURCE MODULE
-# Remove the comment if you changed the build scripts!
-################################################################################
-
 machine:
   timezone: Europe/Berlin
+
+  environment:
+    MONGO_VERSION: 3.2.9
+
+  services:
+    - docker
 
   node:
     version: 8.9.4
 
 dependencies:
   pre:
-    - npm install -g roboter-cli
+    # Copy TLS cert to /etc/tls/ for further use
+    - sudo cp -r tls /etc
+    # Install MongoDB with SSL
+    - if [[ ! -d mongodb-linux-x86_64-ubuntu1404-${MONGO_VERSION} ]]; then wget https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu1404-${MONGO_VERSION}.tgz && tar xvzf mongodb-linux-x86_64-ubuntu1404-${MONGO_VERSION}.tgz; fi
+    - sudo service mongod stop
+    - >
+      echo -e "storage:
+        mmapv1:
+          smallFiles: true
+        journal:
+          enabled: false
+        preallocDataFiles: false
+      net:
+        ssl:
+          mode: requireSSL
+          PEMKeyFile: /etc/tls/cert-key-combined.pem
+      " | sudo tee /etc/mongod.conf
+    - sudo cp mongodb-linux-x86_64-ubuntu1404-${MONGO_VERSION}/bin/* /usr/bin
+    - sudo service mongod start
 
 test:
   override:
+    - npm install -g roboter-cli
     - npm run bot
