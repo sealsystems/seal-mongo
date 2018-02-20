@@ -1,45 +1,40 @@
-# seal-mongo
+# @sealsystems/mongo
 
 [![CircleCI](https://circleci.com/gh/sealsystems/seal-mongo.svg?style=svg)](https://circleci.com/gh/sealsystems/seal-mongo)
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/snpc0tybrw04l6b8?svg=true)](https://ci.appveyor.com/project/Plossys/seal-mongo)
 
-seal-mongo makes it easy to connect to MongoDB reliably.
+@sealsystems/mongo makes it easy to connect to MongoDB reliably.
 
 ## Installation
 
-```bash
-$ npm install seal-mongo
+```shell
+$ npm install @sealsystems/mongo
 ```
 
 ## Quick start
 
-First you need to add a reference to seal-mongo to your application.
+First you need to add a reference to @sealsystems/mongo to your application:
 
 ```javascript
-const mongo = require('seal-mongo');
+const mongo = require('@sealsystems/mongo');
 ```
 
-Then you can use its `db` function to connect to a MongoDB server. Provide the connection string and a callback as parameters.
+Then you can use its `db` function to connect to a MongoDB server. Provide the connection string as parameter:
 
 ```javascript
-mongo.db('mongodb://localhost:27017/mydb', (err, db) => {
-  // ...
-});
+const db = await mongo.db('mongodb://localhost:27017/mydb');
 ```
 
-If no connection can be established, seal-mongo retries to connect ten times, with a pause of 1 second between two connection attempts.
+If no connection can be established, @sealsystems/mongo retries to connect ten times, with a pause of 1 second between two connection attempts.
 
-If you need to pass options to the MongoDB connection, e.g. for setting write concerns, provide an additional `options` object. For details see the [MongoClient.connect documentation](http://mongodb.github.io/node-mongodb-native/api-generated/mongoclient.html#mongoclient-connect).
-Additionally the following options can be set:
+If you need to pass options to the MongoDB connection, e.g. for setting write concerns, provide an additional `options` object. For details see the [MongoClient.connect documentation](http://mongodb.github.io/node-mongodb-native/api-generated/mongoclient.html#mongoclient-connect). Additionally the following options can be set:
 
 - `connectionRetries` is the number of retries to connect to MongoDB server, a value of 0 tries to connect only once without retries, default is 10.
-- `waitTimeBetweenRetries` is the time in milliseconds waiting between the retries, default is 1000 ms
+- `waitTimeBetweenRetries` is the time in milliseconds waiting between the retries, default is 1000 ms:
 
 ```javascript
-mongo.db('mongodb://localhost:27017/mydb', {
+const db = await mongo.db('mongodb://localhost:27017/mydb', {
   connectionRetries: 1
-  // ...
-}, (err, db) => {
   // ...
 });
 ```
@@ -58,107 +53,86 @@ const gridfs = db.gridfs();
 
 ### gridfs.createReadStream
 
-createReadStream(fileName, callback)
+createReadStream(fileName)
 
 - fileName `String` Name of the file to read
-- callback (err, stream, metadata) `Function` Called on error or when stream is ready
 
-Opens the file `fileName` for reading and calls `callback` as soon the file is opened. The callback provides the data of the file as a `Readable` stream as well as its metadata.
+Opens the file `fileName` for reading and returns as soon the file is opened. The functions returns the data of the file as a `Readable` stream as well as its metadata:
 
 ```javascript
-gridfs.createReadStream('My file.txt', (err, stream, metadata) => {
-  if (err) {
-    throw err;
-  }
+const { stream, metadata } = await gridfs.createReadStream('My file.txt');
 
-  const chunk = stream.read();
-  // ...
-});
+const chunk = stream.read();
 ```
 
 ### gridfs.createWriteStream
 
-createWriteStream(fileName, metadata, callback)
+createWriteStream(fileName, metadata)
 
 - fileName `String` Name of the file to write
 - metadata `Object` Optional metadata, can be left out
-- callback (err, stream) `Function` Called on error or when stream is ready
 
-Opens the file `fileName` for writing and calls `callback` as soon the file is opened. The content of the file can be written with the `Writable` stream provided by the callback. The stream emits a `close` event when all data is written and the file is closed.
+Opens the file `fileName` for writing and returns as soon as the file is opened. The content of the file can be written with the `Writable` stream that is returned. The stream emits a `close` event when all data is written and the file is closed.
 
 **Please note:** The file content is not fully written when the `finish` event occurs. So, do not rely on it.
 
 ```javascript
-gridfs.createWriteStream('My file.txt', { foo: 'bar' }, (err, stream) => {
+const stream = await gridfs.createWriteStream('My file.txt', { foo: 'bar' });
+
+stream.on('close', (err) => {
   if (err) {
-    throw err;
+    // Handle error on file close
   }
-
-  stream.on('close', (err) => {
-    if (err) {
-      // Handle error on file close
-    }
-  });
-
-  stream.write('Hello World');
-  stream.end();
 });
+
+stream.write('Hello World');
+stream.end();
 ```
 
 ### gridfs.exist
 
-exists(fileName, callback)
+exist(fileName)
 
 - fileName `String` Name of the file to check
-- callback (err, doExist) `Function` Called on error or when check finished
 
-Checks if file `fileName` does exist. The callback provides an possible error and a boolean value. If `doExist` is false the file does not exist, otherwise it exists.
+Checks if file `fileName` does exist. If the function returns false the file does not exist, otherwise it exists.
 
 ```javascript
-gridfs.exist('My file.txt', (err, doExist) => {
-  if (err) {
-    throw err;
-  }
+const doesExist = await gridfs.exist('My file.txt');
 
-  if (doExist) {
-    // File does exist
-  } else {
-    // File does not exist
-  }
-});
+if (doesExist) {
+  // File does exist
+} else {
+  // File does not exist
+}
 ```
 
 ### gridfs.unlink
 
-unlink(fileName, callback)
+unlink(fileName)
 
 - fileName `String` Name of the file to delete
-- callback (err, fileFound) `Function` Called on error or delete finished
 
-Deletes the file `fileName`. The callback provides an error object if the unlink operation fails. Otherwise the `fileFound` indicates whether the file did exist or not.
+Deletes the file `fileName`. The returned value indicates whether the file did exist or not.
 
 ```javascript
-gridfs.unlink('My file.txt', (err, fileFound) => {
-  if (err) {
-    throw err;
-  }
+const fileFound = await gridfs.unlink('My file.txt');
 
-  if (fileFound) {
-    // File did exist and has been removed
-  } else {
-    // File does not exist
-  }
-});
+if (fileFound) {
+  // File did exist and has been removed
+} else {
+  // File does not exist
+}
 ```
 
 ## TLS
 
-The module uses [plossys/seal-tlscert](https://github.com/plossys/seal-tlscert) to obtain certificates for an encrypted connection to the database. The connection will only be encrypted if `TLS_UNPROTECTED` is set to `none` or `loopback`. Otherwise it is assumed that an unencrypted connection is save. If `seal-tlscert` provides a CA certificate, the host's certificate will be transmitted to the database server in order to allow client verification.
+The module uses [@sealsystems/tlscert](https://github.com/sealsystems/tlscert) to obtain certificates for an encrypted connection to the database. The connection will only be encrypted if `TLS_UNPROTECTED` is set to `none` or `loopback`. Otherwise it is assumed that an unencrypted connection is save. If `@sealsystems/tlscert` provides a CA certificate, the host's certificate will be transmitted to the database server in order to allow client verification.
 
 ## Running the build
 
 To build this module use [roboter](https://www.npmjs.com/package/roboter).
 
-'''bash
+```shell
 $ bot
-'''
+```
