@@ -177,13 +177,21 @@ suite('mongo', () => {
           writeStream.write(content);
           writeStream.end();
 
-          // Wait for a short amount of time to give MongoDB enough time to
-          // actually save the file to GridFS.
-          await sleep(0.1 * 1000);
-
           await new Promise(async (resolve, reject) => {
             try {
-              const result = await gridfs.exist(fileName);
+              let result;
+
+              for (let i = 0; i < 10; i++) {
+                // Wait for a short amount of time to give MongoDB enough time to
+                // actually save the file to GridFS.
+                await sleep(0.1 * 1000);
+
+                result = await gridfs.exist(fileName);
+                if (result) {
+                  // Write is complete. No need to re-check.
+                  break;
+                }
+              }
 
               assert.that(result).is.true();
 
