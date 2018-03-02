@@ -1,9 +1,5 @@
 version: "{build}"
 
-branches:
-  only:
-    - /^[\d.]+$/
-
 # Uncomment to debug via RDP
 init:
   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
