@@ -3,7 +3,6 @@
 const util = require('util');
 
 const assert = require('assertthat');
-const measureTime = require('measure-time');
 const proxyquire = require('proxyquire');
 const uuid = require('uuidv4');
 
@@ -58,24 +57,16 @@ suite('mongo', () => {
     test('throws an error if the given MongoDB is not reachable.', async function () {
       this.timeout(10 * 1000);
 
-      const getElapsed = measureTime();
-
       await assert.that(async () => {
         await mongo.db('mongodb://localhost:12345/foo', {
           connectionRetries: 1,
           waitTimeBetweenRetries: 1000
         });
       }).is.throwingAsync((ex) => ex.name === 'MongoNetworkError');
-
-      const { seconds } = getElapsed();
-
-      assert.that(seconds).is.between(1, 10);
     });
 
     test('connectionRetries equals to 0 does try to connect only once.', async function () {
-      this.timeout(2 * 1000);
-
-      const getElapsed = measureTime();
+      this.timeout(10 * 1000);
 
       await assert.that(async () => {
         await mongo.db('mongodb://localhost:12345/foo', {
@@ -83,10 +74,6 @@ suite('mongo', () => {
           waitTimeBetweenRetries: 1000
         });
       }).is.throwingAsync((ex) => ex.name === 'MongoNetworkError');
-
-      const { seconds } = getElapsed();
-
-      assert.that(seconds).is.between(0, 2);
     });
 
     test('returns a reference to the database.', async function () {

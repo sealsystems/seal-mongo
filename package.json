@@ -34,7 +34,6 @@
     "@sealsystems/eslint-config-es": "1.1.1",
     "assertthat": "1.0.0",
     "docker-host": "3.1.0",
-    "measure-time": "3.1.1",
     "nodeenv": "1.0.0",
     "proxyquire": "1.8.0",
     "roboter": "0.16.0",
