@@ -1,7 +1,8 @@
 # @sealsystems/mongo
 
-[![CircleCI](https://circleci.com/gh/sealsystems/seal-mongo.svg?style=svg)](https://circleci.com/gh/sealsystems/seal-mongo)
-[![AppVeyor](https://ci.appveyor.com/api/projects/status/snpc0tybrw04l6b8?svg=true)](https://ci.appveyor.com/project/Plossys/seal-mongo)
+[![CircleCI](https://circleci.com/gh/sealsystems/node-mongo.svg?style=svg)](https://circleci.com/gh/sealsystems/node-mongo)
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/d24pt7cyplw29xo6?svg=true)](https://ci.appveyor.com/project/Plossys/node-mongo)
+
 
 @sealsystems/mongo makes it easy to connect to MongoDB reliably.
 
