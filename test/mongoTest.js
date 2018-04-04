@@ -39,6 +39,7 @@ const connectionStringOther = `mongodb://localhost:27717/bar`;
 let restore;
 
 suite('mongo', () => {
+  /* eslint-disable mocha/no-synchronous-tests */
   before(() => {
     restore = nodeenv('TLS_UNPROTECTED', 'world');
   });
@@ -46,6 +47,7 @@ suite('mongo', () => {
   after(() => {
     restore();
   });
+  /* eslint-enable mocha/no-synchronous-tests */
 
   test('is an object.', async () => {
     assert.that(mongo).is.ofType('object');
