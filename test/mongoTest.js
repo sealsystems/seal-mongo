@@ -3,6 +3,7 @@
 const util = require('util');
 
 const assert = require('assertthat');
+const nodeenv = require('nodeenv');
 const proxyquire = require('proxyquire');
 const uuid = require('uuidv4');
 
@@ -33,12 +34,19 @@ const mongoMock = proxyquire('../lib/mongo', {
 
 const sleep = util.promisify(setTimeout);
 
-const mongoHost = require('docker-host')().host;
-
-const connectionString = `mongodb://${mongoHost}:27017/foo`;
-const connectionStringOther = `mongodb://${mongoHost}:27017/bar`;
+const connectionString = `mongodb://localhost:27717/foo`;
+const connectionStringOther = `mongodb://localhost:27717/bar`;
+let restore;
 
 suite('mongo', () => {
+  before(() => {
+    restore = nodeenv('TLS_UNPROTECTED', 'world');
+  });
+
+  after(() => {
+    restore();
+  });
+
   test('is an object.', async () => {
     assert.that(mongo).is.ofType('object');
   });
@@ -78,7 +86,6 @@ suite('mongo', () => {
 
     test('returns a reference to the database.', async function () {
       this.timeout(10 * 1000);
-
       const db = await mongo.db(connectionString);
 
       assert.that(db).is.ofType('object');

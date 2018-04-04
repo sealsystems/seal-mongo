@@ -13,7 +13,9 @@
     "release": "bot release && npm publish",
     "release-minor": "bot release --type minor && npm publish",
     "release-major": "bot release --type major && npm publish",
+    "pretest": "mongodb-runner start --topology=standalone --port=27717",
     "test": "bot test-units",
+    "posttest": "mongodb-runner stop",
     "coverage": "istanbul cover _mocha -- --recursive --ui tdd ",
     "report": "npm run coverage && if [[ $OSTYPE == darwin* ]]; then open=open; else open=xdg-open; fi && $open coverage/lcov-report/index.html"
   },
@@ -27,13 +29,13 @@
     "async-retry": "1.2.1",
     "babel-register": "6.26.0",
     "mongodb": "3.0.3",
+    "mongodb-runner": "3.6.1",
     "mongodb-uri": "0.9.7",
     "processenv": "1.0.0"
   },
   "devDependencies": {
     "@sealsystems/eslint-config-es": "1.1.1",
     "assertthat": "1.0.0",
-    "docker-host": "3.1.0",
     "nodeenv": "1.0.0",
     "proxyquire": "1.8.0",
     "roboter": "0.16.0",
