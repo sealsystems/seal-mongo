@@ -161,7 +161,9 @@ suite('mongo', () => {
           }).is.throwingAsync();
         });
 
-        test('reads file', async () => {
+        test('reads file', async function () {
+          this.timeout(10 * 1000);
+
           const db = await mongo.db(connectionString);
           const gridfs = db.gridfs();
 
