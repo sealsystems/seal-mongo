@@ -51,37 +51,49 @@ suite('setTlsOptions', () => {
 
   test('enforces SSL encryption.', async () => {
     const options = { foo: 'bar' };
+    const restore = nodeenv('TLS_UNPROTECTED', null);
 
     await setTlsOptions(options);
 
     assert.that(options.ssl).is.true();
+
+    restore();
   });
 
   test('returns CA certificate, client certificate and key.', async () => {
     const options = {};
+    const restore = nodeenv('TLS_UNPROTECTED', null);
 
     await setTlsOptions(options);
 
     assert.that(options.sslCA).is.equalTo(['ca']);
     assert.that(options.sslCert).is.equalTo('cert');
     assert.that(options.sslKey).is.equalTo('key');
+
+    restore();
   });
 
   test('enforces validation if CA certificate is given.', async () => {
     const options = {};
+    const restore = nodeenv('TLS_UNPROTECTED', null);
 
     await setTlsOptions(options);
 
     assert.that(options.sslValidate).is.true();
+
+    restore();
   });
 
   test('does not provide certificates for client authentication if CA certificate is missing.', async () => {
     const options = {};
+    const restore = nodeenv('TLS_UNPROTECTED', null);
 
     keystore = { cert: 'cert', key: 'key' };
 
     await setTlsOptions(options);
 
     assert.that(options).is.equalTo({ ssl: true });
+
+    restore();
   });
 });
