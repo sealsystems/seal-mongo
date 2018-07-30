@@ -17,7 +17,7 @@
     "release-major": "npm run bot release --type major && npm publish",
     "test": "npm run bot test-units",
     "precoverage": "mongodb-runner start --topology=standalone --port=27717",
-    "coverage": "istanbul cover _mocha -- --recursive --ui tdd ",
+    "coverage": "nyc --reporter=text --reporter=lcov mocha",
     "postcoverage": "mongodb-runner stop",
     "report": "npm run coverage && if [[ $OSTYPE == darwin* ]]; then open=open; else open=xdg-open; fi && $open coverage/lcov-report/index.html"
   },
@@ -39,6 +39,7 @@
     "@sealsystems/eslint-config-es": "1.1.1",
     "assertthat": "1.0.0",
     "nodeenv": "1.0.0",
+    "nyc": "12.0.2",
     "proxyquire": "1.8.0",
     "roboter": "0.16.0",
     "roboter-server": "0.16.0",
