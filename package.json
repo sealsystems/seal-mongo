@@ -31,13 +31,13 @@
     "async-retry": "1.2.1",
     "babel-register": "6.26.0",
     "mongodb": "3.0.3",
-    "mongodb-runner": "3.6.1",
     "mongodb-uri": "0.9.7",
     "processenv": "1.0.0"
   },
   "devDependencies": {
     "@sealsystems/eslint-config-es": "1.1.1",
     "assertthat": "1.0.0",
+    "mongodb-runner": "3.6.1",
     "nodeenv": "1.0.0",
     "nyc": "12.0.2",
     "proxyquire": "1.8.0",
