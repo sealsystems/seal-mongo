@@ -13,10 +13,10 @@ environment:
 install:
   # Install Node.js
   - ps: Install-Product node $env:NODE_VERSION x64
+  - npm install
+  - npm install -g roboter-cli
 
 build: off
 
 test_script:
-  - npm install
-  - npm install -g roboter-cli
   - npm run bot

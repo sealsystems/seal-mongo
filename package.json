@@ -12,9 +12,7 @@
     "prebot": "mongodb-runner start --topology=standalone --port=27717",
     "bot": "bot",
     "postbot": "mongodb-runner stop",
-    "release": "npm run bot release && npm publish",
-    "release-minor": "npm run bot release --type minor && npm publish",
-    "release-major": "npm run bot release --type major && npm publish",
+    "release": "semantic-release --branch ${CIRCLE_BRANCH}",
     "test": "npm run bot test-units",
     "precoverage": "mongodb-runner start --topology=standalone --port=27717",
     "coverage": "nyc --reporter=text --reporter=lcov mocha",
@@ -44,6 +42,9 @@
     "roboter": "0.16.0",
     "roboter-server": "0.16.0",
     "uuidv4": "1.0.0"
+  },
+  "release": {
+    "extends": "@sealsystems/semantic-release-config/node-module"
   },
   "publishConfig": {
     "access": "public"
