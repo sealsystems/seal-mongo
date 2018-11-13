@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@sealsystems/eslint-config-es": "1.1.1",
+    "@sealsystems/semantic-release-config": "3.0.0",
     "assertthat": "1.0.0",
     "mongodb-runner": "3.6.1",
     "nodeenv": "1.0.0",
@@ -41,6 +42,7 @@
     "proxyquire": "1.8.0",
     "roboter": "0.16.0",
     "roboter-server": "0.16.0",
+    "semantic-release": "15.11.0",
     "uuidv4": "1.0.0"
   },
   "release": {
