@@ -10,10 +10,9 @@
   "license": "MIT",
   "scripts": {
     "prebot": "mongodb-runner start --topology=standalone --port=27717",
-    "bot": "bot",
     "postbot": "mongodb-runner stop",
     "release": "semantic-release --branch ${CIRCLE_BRANCH}",
-    "test": "npm run bot test-units",
+    "test": "roboter test",
     "precoverage": "mongodb-runner start --topology=standalone --port=27717",
     "coverage": "nyc --reporter=text --reporter=lcov mocha",
     "postcoverage": "mongodb-runner stop",
@@ -35,15 +34,14 @@
   "devDependencies": {
     "@sealsystems/eslint-config-es": "1.1.1",
     "@sealsystems/semantic-release-config": "3.0.0",
-    "assertthat": "1.0.0",
+    "assertthat": "2.0.0",
     "mongodb-runner": "4.7.1",
     "nodeenv": "1.0.0",
-    "nyc": "12.0.2",
-    "proxyquire": "1.8.0",
-    "roboter": "0.16.0",
-    "roboter-server": "0.16.0",
-    "semantic-release": "15.12.2",
-    "uuidv4": "1.0.0"
+    "nyc": "13.1.0",
+    "proxyquire": "2.1.0",
+    "roboter": "3.0.3",
+    "semantic-release": "15.12.4",
+    "uuidv4": "2.0.0"
   },
   "release": {
     "extends": "@sealsystems/semantic-release-config/node-module"
