@@ -119,7 +119,7 @@ suite('mongo', () => {
       const coll = db.collection(uuid());
 
       await assert.that(async () => {
-        await coll.insert({ foo: 'bar' });
+        await coll.insertOne({ foo: 'bar' });
       }).is.not.throwingAsync();
     });
 
