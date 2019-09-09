@@ -30,7 +30,7 @@
     "babel-register": "6.26.0",
     "mongodb": "3.3.2",
     "mongodb-uri": "0.9.7",
-    "processenv": "1.1.0"
+    "processenv": "2.0.1"
   },
   "devDependencies": {
     "@sealsystems/eslint-config-es": "3.3.15",
