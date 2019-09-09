@@ -1,4 +1,3 @@
-/* eslint-disable jest/no-identical-title */
 /* eslint-disable no-async-promise-executor */
 'use strict';
 
