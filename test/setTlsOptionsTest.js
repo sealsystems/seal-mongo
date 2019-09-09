@@ -8,7 +8,7 @@ let keystore;
 
 const setTlsOptions = proxyquire('../lib/setTlsOptions', {
   '@sealsystems/tlscert': {
-    async get () {
+    async get() {
       return keystore;
     }
   }
@@ -24,12 +24,14 @@ suite('setTlsOptions', () => {
   });
 
   test('throws an error if options are missing.', async () => {
-    await assert.that(async () => {
-      await setTlsOptions();
-    }).is.throwingAsync('Options are missing.');
+    await assert
+      .that(async () => {
+        await setTlsOptions();
+      })
+      .is.throwingAsync('Options are missing.');
   });
 
-  test('does not set TLS options if TLS_UNPROTECTED is set to \'world\'.', async () => {
+  test("does not set TLS options if TLS_UNPROTECTED is set to 'world'.", async () => {
     const options = { foo: 'bar' };
     const restore = nodeenv('TLS_UNPROTECTED', 'world');
 
@@ -39,7 +41,7 @@ suite('setTlsOptions', () => {
     restore();
   });
 
-  test('does not set TLS options if TLS_UNPROTECTED is set to \'dc\'.', async () => {
+  test("does not set TLS options if TLS_UNPROTECTED is set to 'dc'.", async () => {
     const options = { foo: 'bar' };
     const restore = nodeenv('TLS_UNPROTECTED', 'dc');
 

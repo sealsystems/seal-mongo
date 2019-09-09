@@ -1,3 +1,5 @@
+/* eslint-disable jest/no-identical-title */
+/* eslint-disable no-async-promise-executor */
 'use strict';
 
 const util = require('util');
@@ -10,7 +12,7 @@ const uuid = require('uuidv4');
 const mongo = require('../lib/mongo');
 
 const mongoMock = proxyquire('../lib/mongo', {
-  async './setTlsOptions' (options) {
+  async './setTlsOptions'(options) {
     options.sslCA = ['ca'];
     options.sslCert = 'cert';
     options.sslKey = 'key';
@@ -21,9 +23,9 @@ const mongoMock = proxyquire('../lib/mongo', {
 
   mongodb: {
     MongoClient: {
-      async connect (connectionString, options) {
+      async connect(connectionString, options) {
         return {
-          async db () {
+          async db() {
             return options;
           }
         };
@@ -57,34 +59,40 @@ suite('mongo', () => {
     });
 
     test('throws an exception if connection string is missing.', async () => {
-      await assert.that(async () => {
-        await mongo.db();
-      }).is.throwingAsync('Connection string is missing.');
+      await assert
+        .that(async () => {
+          await mongo.db();
+        })
+        .is.throwingAsync('Connection string is missing.');
     });
 
-    test('throws an error if the given MongoDB is not reachable.', async function () {
+    test('throws an error if the given MongoDB is not reachable.', async function() {
       this.timeout(10 * 1000);
 
-      await assert.that(async () => {
-        await mongo.db('mongodb://localhost:12345/foo', {
-          connectionRetries: 1,
-          waitTimeBetweenRetries: 1000
-        });
-      }).is.throwingAsync((ex) => ex.name === 'MongoNetworkError');
+      await assert
+        .that(async () => {
+          await mongo.db('mongodb://localhost:12345/foo', {
+            connectionRetries: 1,
+            waitTimeBetweenRetries: 1000
+          });
+        })
+        .is.throwingAsync((ex) => ex.name === 'MongoNetworkError');
     });
 
-    test('connectionRetries equals to 0 does try to connect only once.', async function () {
+    test('connectionRetries equals to 0 does try to connect only once.', async function() {
       this.timeout(10 * 1000);
 
-      await assert.that(async () => {
-        await mongo.db('mongodb://localhost:12345/foo', {
-          connectionRetries: 0,
-          waitTimeBetweenRetries: 1000
-        });
-      }).is.throwingAsync((ex) => ex.name === 'MongoNetworkError');
+      await assert
+        .that(async () => {
+          await mongo.db('mongodb://localhost:12345/foo', {
+            connectionRetries: 0,
+            waitTimeBetweenRetries: 1000
+          });
+        })
+        .is.throwingAsync((ex) => ex.name === 'MongoNetworkError');
     });
 
-    test('returns a reference to the database.', async function () {
+    test('returns a reference to the database.', async function() {
       this.timeout(10 * 1000);
       const db = await mongo.db(connectionString);
 
@@ -118,9 +126,11 @@ suite('mongo', () => {
       const db = await mongo.db(connectionString);
       const coll = db.collection(uuid());
 
-      await assert.that(async () => {
-        await coll.insert({ foo: 'bar' });
-      }).is.not.throwingAsync();
+      await assert
+        .that(async () => {
+          await coll.insert({ foo: 'bar' });
+        })
+        .is.not.throwingAsync();
     });
 
     suite('gridfs', () => {
@@ -143,9 +153,11 @@ suite('mongo', () => {
         test('throws an error if filename is missing', async () => {
           const db = await mongo.db(connectionString);
 
-          await assert.that(async () => {
-            await db.gridfs().createReadStream();
-          }).is.throwingAsync('Filename is missing.');
+          await assert
+            .that(async () => {
+              await db.gridfs().createReadStream();
+            })
+            .is.throwingAsync('Filename is missing.');
         });
 
         test('returns an error if file could not be opened', async () => {
@@ -154,12 +166,14 @@ suite('mongo', () => {
 
           const fileName = uuid();
 
-          await assert.that(async () => {
-            await gridfs.createReadStream(fileName);
-          }).is.throwingAsync();
+          await assert
+            .that(async () => {
+              await gridfs.createReadStream(fileName);
+            })
+            .is.throwingAsync();
         });
 
-        test('reads file', async function () {
+        test('reads file', async function() {
           this.timeout(10 * 1000);
 
           const db = await mongo.db(connectionString);
@@ -253,9 +267,11 @@ suite('mongo', () => {
         test('throws an error if filename is missing', async () => {
           const db = await mongo.db(connectionString);
 
-          await assert.that(async () => {
-            await db.gridfs().createWriteStream();
-          }).is.throwingAsync('Filename is missing.');
+          await assert
+            .that(async () => {
+              await db.gridfs().createWriteStream();
+            })
+            .is.throwingAsync('Filename is missing.');
         });
 
         test('writes file', async () => {
@@ -369,9 +385,11 @@ suite('mongo', () => {
         test('throws an error if filename is missing', async () => {
           const db = await mongo.db(connectionString);
 
-          await assert.that(async () => {
-            await db.gridfs().exist();
-          }).is.throwingAsync('Filename is missing.');
+          await assert
+            .that(async () => {
+              await db.gridfs().exist();
+            })
+            .is.throwingAsync('Filename is missing.');
         });
 
         test('returns false if file does not exist', async () => {
@@ -409,9 +427,11 @@ suite('mongo', () => {
         test('throws an error if filename is missing', async () => {
           const db = await mongo.db(connectionString);
 
-          await assert.that(async () => {
-            await db.gridfs().unlink();
-          }).is.throwingAsync('Filename is missing.');
+          await assert
+            .that(async () => {
+              await db.gridfs().unlink();
+            })
+            .is.throwingAsync('Filename is missing.');
         });
 
         test('unlinks file', async () => {
