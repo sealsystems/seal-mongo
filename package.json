@@ -37,7 +37,7 @@
     "@sealsystems/mocha": "3.0.15",
     "@sealsystems/semantic-release": "4.0.12",
     "mongodb-runner": "4.7.2",
-    "nodeenv": "1.0.0",
+    "nodeenv": "2.0.1",
     "proxyquire": "1.8.0",
     "semantic-release": "15.12.2",
     "uuidv4": "1.0.0"
