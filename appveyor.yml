@@ -17,6 +17,9 @@ environment:
   CONSUL_VERSION: 0.7.5
   TLS_UNPROTECTED: world
 
+services:
+  - mongodb
+
 install:
   # Install Node.js
   - ps: Install-Product node $env:NODE_VERSION x64
