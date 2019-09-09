@@ -18,7 +18,7 @@ jobs:
     docker:
       - image: circleci/node:8.9.4
       - image: consul:0.7.5
-      - image: mongodb
+      - image: circleci/mongodb
 
     environment:
       <<: *environment
