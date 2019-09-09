@@ -36,8 +36,8 @@ const mongoMock = proxyquire('../lib/mongo', {
 
 const sleep = util.promisify(setTimeout);
 
-const connectionString = `mongodb://localhost:27717/foo`;
-const connectionStringOther = `mongodb://localhost:27717/bar`;
+const connectionString = `mongodb://localhost:27017/foo`;
+const connectionStringOther = `mongodb://localhost:27017/bar`;
 let restore;
 
 suite('mongo', () => {

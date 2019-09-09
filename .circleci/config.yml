@@ -17,6 +17,7 @@ jobs:
   test:
     docker:
       - image: circleci/node:8.9.4
+      - image: circleci/mongo:3
       - image: consul:0.7.5
 
     environment:
