@@ -17,7 +17,7 @@
     "lint:fix": "lint-fix",
     "test:coverage": "test-coverage",
     "test:coverage:check": "test-coverage-check",
-    "test:report": "test-report",
+    "test:report": "test-report"
   },
   "main": "lib/mongo.js",
   "repository": {
