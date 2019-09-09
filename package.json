@@ -12,12 +12,16 @@
     "prebot": "mongodb-runner start --topology=standalone --port=27717",
     "bot": "bot",
     "postbot": "mongodb-runner stop",
-    "release": "semantic-release --branch ${CIRCLE_BRANCH}",
-    "test": "npm run bot test-units",
+    "release": "release",
+    "test": "test-run",
     "precoverage": "mongodb-runner start --topology=standalone --port=27717",
-    "coverage": "nyc --reporter=text --reporter=lcov mocha",
     "postcoverage": "mongodb-runner stop",
-    "report": "npm run coverage && if [[ $OSTYPE == darwin* ]]; then open=open; else open=xdg-open; fi && $open coverage/lcov-report/index.html"
+    "licenses": "license-checker --production --csv",
+    "lint": "lint",
+    "lint:fix": "lint-fix",
+    "test:coverage": "test-coverage",
+    "test:coverage:check": "test-coverage-check",
+    "test:report": "test-report"
   },
   "main": "lib/mongo.js",
   "repository": {
@@ -33,20 +37,17 @@
     "processenv": "1.1.0"
   },
   "devDependencies": {
-    "@sealsystems/eslint-config-es": "1.1.1",
-    "@sealsystems/semantic-release-config": "3.0.0",
-    "assertthat": "1.0.0",
+    "@sealsystems/eslint-config-es": "3.3.15",
+    "@sealsystems/mocha": "3.0.15",
+    "@sealsystems/semantic-release": "4.0.12",
     "mongodb-runner": "4.7.1",
     "nodeenv": "1.0.0",
-    "nyc": "12.0.2",
     "proxyquire": "1.8.0",
-    "roboter": "0.16.0",
-    "roboter-server": "0.16.0",
     "semantic-release": "15.12.2",
     "uuidv4": "1.0.0"
   },
   "release": {
-    "extends": "@sealsystems/semantic-release-config/node-module"
+    "extends": "@sealsystems/semantic-release/node-module"
   },
   "publishConfig": {
     "access": "public"

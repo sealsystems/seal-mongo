@@ -1,3 +1,7 @@
+################################################################################
+# OPEN SOURCE MODULE
+# Remove the comment if you changed the build scripts!
+################################################################################
 
 version: 2
 
@@ -13,6 +17,7 @@ jobs:
   test:
     docker:
       - image: circleci/node:8.9.4
+      - image: consul:0.7.5
 
     environment:
       <<: *environment
@@ -20,16 +25,15 @@ jobs:
     steps:
       - checkout
       - restore_cache: &restore-cache
-          key: dependency-cache-{{ checksum "package.json" }}
+          key: dependency-cache-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}-{{ checksum ".circleci/config.yml" }}
       - run: &install-dependencies
           name: Install dependencies
           command: |
             if [ ! -d ./node_modules ]; then
               npm install
-              npm install --no-save roboter-cli
             fi
       - save_cache: &save-cache
-          key: dependency-cache-{{ checksum "package.json" }}
+          key: dependency-cache-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}-{{ checksum ".circleci/config.yml" }}
           paths:
             - ./node_modules
       - run:
@@ -37,7 +41,7 @@ jobs:
           command: npm run bot
       - run:
           name: Run code coverage
-          command: npm run coverage
+          command: npm run test:coverage
       - store_artifacts:
           path: coverage/lcov-report
           destination: coverage

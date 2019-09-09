@@ -1,3 +1,8 @@
+################################################################################
+# OPEN SOURCE MODULE
+# Remove the comment if you changed the build scripts!
+################################################################################
+
 version: "{build}"
 
 # Uncomment to debug via RDP
@@ -9,12 +14,27 @@ version: "{build}"
 
 environment:
   NODE_VERSION: 8.9.4
+  CONSUL_VERSION: 0.7.5
+  TLS_UNPROTECTED: world
 
 install:
   # Install Node.js
   - ps: Install-Product node $env:NODE_VERSION x64
+  # Install Consul
+  - ps: |
+      choco install --no-progress -y consul -version $env:CONSUL_VERSION
+      @{
+        bind_addr="127.0.0.1"
+        bootstrap_expect=1
+        ports=@{
+          dns=53
+          http=8500
+        }
+        server=$True
+      } | ConvertTo-Json | Out-File -Filepath C:\ProgramData\consul\config\config.json -Encoding ascii
+      Restart-Service consul
+  # Install dependencies
   - npm install
-  - npm install -g roboter-cli
 
 build: off
 
