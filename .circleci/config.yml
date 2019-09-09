@@ -37,6 +37,9 @@ jobs:
           paths:
             - ./node_modules
       - run:
+          name: Install package 'lsb-release' for mongodb-runner
+          command: sudo apt-get install lsb-release
+      - run:
           name: Run tests
           command: npm run bot
       - run:
