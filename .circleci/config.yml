@@ -18,6 +18,7 @@ jobs:
     docker:
       - image: circleci/node:8.9.4
       - image: consul:0.7.5
+      - image: mongodb
 
     environment:
       <<: *environment
@@ -36,9 +37,6 @@ jobs:
           key: dependency-cache-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}-{{ checksum ".circleci/config.yml" }}
           paths:
             - ./node_modules
-      - run:
-          name: Install package 'lsb-release' for mongodb-runner
-          command: sudo apt-get install lsb-release
       - run:
           name: Run tests
           command: npm run bot
