@@ -1,3 +1,14 @@
+## 2.2.5 (2019-09-10)
+
+### Chores
+
+
+#### Use public NPM registry for references in package-lock.json ([94aeac3](https://github.com/sealsystems/node-mongo/commit/94aeac3))
+
+
+
+---
+
 ## 2.2.4 (2019-09-10)
 
 ### Chores
