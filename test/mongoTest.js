@@ -1,8 +1,6 @@
 /* eslint-disable no-async-promise-executor */
 'use strict';
 
-const util = require('util');
-
 const assert = require('assertthat');
 const nodeenv = require('nodeenv');
 const proxyquire = require('proxyquire');
