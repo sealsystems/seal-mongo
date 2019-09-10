@@ -1,3 +1,16 @@
+## 2.2.4 (2019-09-10)
+
+### Chores
+
+
+#### linted ([21abeb8](https://github.com/sealsystems/node-mongo/commit/21abeb8))
+
+#### removed warnings from mongo lib and fixed definition of sleep ([ecafb1d](https://github.com/sealsystems/node-mongo/commit/ecafb1d))
+
+
+
+---
+
 ## 2.2.3 (2019-09-09)
 
 ### Chores
