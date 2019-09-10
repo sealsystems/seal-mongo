@@ -33,7 +33,11 @@ const mongoMock = proxyquire('../lib/mongo', {
   }
 });
 
-const sleep = util.promisify(setTimeout);
+const sleep = function(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+};
 
 const connectionString = `mongodb://localhost:27017/foo`;
 const connectionStringOther = `mongodb://localhost:27017/bar`;
