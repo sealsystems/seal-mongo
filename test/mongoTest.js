@@ -4,7 +4,7 @@
 const assert = require('assertthat');
 const nodeenv = require('nodeenv');
 const proxyquire = require('proxyquire');
-const uuid = require('uuidv4');
+const uuid = require('uuid/v4');
 
 const mongo = require('../lib/mongo');
 

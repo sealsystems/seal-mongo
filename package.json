@@ -25,7 +25,7 @@
     "url": "https://github.com/sealsystems/node-mongo.git"
   },
   "dependencies": {
-    "@sealsystems/tlscert": "2.1.2",
+    "@sealsystems/tlscert": "git+https://b190bb194b54549c14c9b4b219bcdead6d1ea9ab:x-oauth-basic@github.com/sealsystems/node-tlscert.git#PLS-431",
     "async-retry": "1.2.3",
     "babel-register": "6.26.0",
     "mongodb": "3.3.2",
@@ -36,9 +36,9 @@
     "@sealsystems/eslint-config-es": "3.5.3",
     "@sealsystems/mocha": "4.1.1",
     "@sealsystems/semantic-release": "4.0.12",
-    "nodeenv": "1.0.0",
+    "nodeenv": "1.1.0",
     "proxyquire": "2.1.3",
-    "uuidv4": "1.0.0"
+    "uuid": "3.3.3"
   },
   "release": {
     "extends": "@sealsystems/semantic-release/node-module"
