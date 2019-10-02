@@ -1,3 +1,20 @@
+## 2.2.6 (2019-09-25)
+
+### Chores
+
+
+#### bump [@sealsystems](https://github.com/sealsystems)/tlscert from 2.1.2 to 2.2.0 ([8761fb1](https://github.com/sealsystems/node-mongo/commit/8761fb1))
+
+Bumps [@sealsystems/tlscert](https://github.com/sealsystems/node-tlscert) from 2.1.2 to 2.2.0.
+- [Release notes](https://github.com/sealsystems/node-tlscert/releases)
+- [Changelog](https://github.com/sealsystems/node-tlscert/blob/master/CHANGELOG.md)
+- [Commits](https://github.com/sealsystems/node-tlscert/compare/2.1.2...2.2.0)
+
+Signed-off-by: dependabot-preview[bot] <support@dependabot.com>
+
+
+---
+
 ## 2.2.5 (2019-09-10)
 
 ### Chores
