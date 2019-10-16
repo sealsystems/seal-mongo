@@ -1,3 +1,37 @@
+## 2.2.8 (2019-10-15)
+
+### Chores
+
+
+#### bump [@sealsystems](https://github.com/sealsystems)/tlscert from 2.2.1 to 2.3.0 ([55bf849](https://github.com/sealsystems/node-mongo/commit/55bf849))
+
+Bumps [@sealsystems/tlscert](https://github.com/sealsystems/node-tlscert) from 2.2.1 to 2.3.0.
+- [Release notes](https://github.com/sealsystems/node-tlscert/releases)
+- [Changelog](https://github.com/sealsystems/node-tlscert/blob/master/CHANGELOG.md)
+- [Commits](https://github.com/sealsystems/node-tlscert/compare/2.2.1...2.3.0)
+
+Signed-off-by: dependabot-preview[bot] <support@dependabot.com>
+
+
+---
+
+## 2.2.7 (2019-10-09)
+
+### Chores
+
+
+#### bump [@sealsystems](https://github.com/sealsystems)/tlscert from 2.2.0 to 2.2.1 ([54d4482](https://github.com/sealsystems/node-mongo/commit/54d4482))
+
+Bumps [@sealsystems/tlscert](https://github.com/sealsystems/node-tlscert) from 2.2.0 to 2.2.1.
+- [Release notes](https://github.com/sealsystems/node-tlscert/releases)
+- [Changelog](https://github.com/sealsystems/node-tlscert/blob/master/CHANGELOG.md)
+- [Commits](https://github.com/sealsystems/node-tlscert/compare/2.2.0...2.2.1)
+
+Signed-off-by: dependabot-preview[bot] <support@dependabot.com>
+
+
+---
+
 ## 2.2.6 (2019-09-25)
 
 ### Chores
