@@ -1,3 +1,16 @@
+## 2.3.0 (2019-10-18)
+
+### Features
+
+
+#### PLS-431, [PLS-431](https://jira.sealsystems.de/jira/browse/PLS-431) ([a1574f3](https://github.com/sealsystems/node-mongo/commit/a1574f3))
+
+- Updated dependencies
+ - Used `seal-node:oss-module-update`
+
+
+---
+
 ## 2.2.8 (2019-10-15)
 
 ### Chores
