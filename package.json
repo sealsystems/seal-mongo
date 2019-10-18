@@ -28,7 +28,7 @@
     "@sealsystems/tlscert": "2.3.0",
     "async-retry": "1.2.3",
     "babel-register": "6.26.0",
-    "mongodb": "3.3.2",
+    "mongodb": "3.3.3",
     "mongodb-uri": "0.9.7",
     "processenv": "1.1.0"
   },
