@@ -37,8 +37,9 @@ const sleep = function(ms) {
   });
 };
 
-const connectionString = `mongodb://localhost:27017/foo`;
-const connectionStringOther = `mongodb://localhost:27017/bar`;
+const connectionStringFoo = `mongodb://localhost:27017/foo`;
+const connectionStringBar = `mongodb://localhost:27017/bar`;
+const connectionStringCursor = `mongodb://localhost:27017/cursor`;
 let restore;
 
 suite('mongo', () => {
@@ -95,14 +96,14 @@ suite('mongo', () => {
 
     test('returns a reference to the database.', async function() {
       this.timeout(10 * 1000);
-      const db = await mongo.db(connectionString);
+      const db = await mongo.db(connectionStringFoo);
 
       assert.that(db).is.ofType('object');
       assert.that(db.collection).is.ofType('function');
     });
 
     test('validates with given CA certificate.', async () => {
-      const connectOptions = await mongoMock.db(connectionString);
+      const connectOptions = await mongoMock.db(connectionStringFoo);
 
       assert.that(connectOptions).is.ofType('object');
       assert.that(connectOptions.sslCA).is.equalTo(['ca']);
@@ -110,21 +111,21 @@ suite('mongo', () => {
     });
 
     test('returns the same reference if called twice with the same connection string.', async () => {
-      const dbFirst = await mongo.db(connectionString);
-      const dbSecond = await mongo.db(connectionString);
+      const dbFirst = await mongo.db(connectionStringFoo);
+      const dbSecond = await mongo.db(connectionStringFoo);
 
       assert.that(dbFirst).is.sameAs(dbSecond);
     });
 
     test('returns different references if called twice with different connection strings.', async () => {
-      const dbFirst = await mongo.db(connectionString);
-      const dbSecond = await mongo.db(connectionStringOther);
+      const dbFirst = await mongo.db(connectionStringFoo);
+      const dbSecond = await mongo.db(connectionStringBar);
 
       assert.that(dbFirst).is.not.sameAs(dbSecond);
     });
 
     test('connects to database', async () => {
-      const db = await mongo.db(connectionString);
+      const db = await mongo.db(connectionStringFoo);
       const coll = db.collection(uuid());
 
       await assert
@@ -136,13 +137,13 @@ suite('mongo', () => {
 
     suite('gridfs', () => {
       test('is a function.', async () => {
-        const db = await mongo.db(connectionString);
+        const db = await mongo.db(connectionStringFoo);
 
         assert.that(db.gridfs).is.ofType('function');
       });
 
       test('returns a reference to GridFS.', async () => {
-        const db = await mongo.db(connectionString);
+        const db = await mongo.db(connectionStringFoo);
 
         const gridfs = db.gridfs();
 
@@ -152,7 +153,7 @@ suite('mongo', () => {
 
       suite('createReadStream', () => {
         test('throws an error if filename is missing', async () => {
-          const db = await mongo.db(connectionString);
+          const db = await mongo.db(connectionStringFoo);
 
           await assert
             .that(async () => {
@@ -162,7 +163,7 @@ suite('mongo', () => {
         });
 
         test('returns an error if file could not be opened', async () => {
-          const db = await mongo.db(connectionString);
+          const db = await mongo.db(connectionStringFoo);
           const gridfs = db.gridfs();
 
           const fileName = uuid();
@@ -177,7 +178,7 @@ suite('mongo', () => {
         test('reads file', async function() {
           this.timeout(10 * 1000);
 
-          const db = await mongo.db(connectionString);
+          const db = await mongo.db(connectionStringFoo);
           const gridfs = db.gridfs();
 
           const fileName = uuid();
@@ -211,6 +212,62 @@ suite('mongo', () => {
               stream.on('data', (chunk) => {
                 try {
                   assert.that(chunk.toString()).is.equalTo(content);
+                  // tests in data event, because cursor is created at first read
+                  assert.that(stream.s.cursor.cmd.noCursorTimeout).is.falsy();
+                } catch (ex) {
+                  reject(ex);
+                }
+              });
+              stream.once('end', resolve);
+            } catch (ex) {
+              reject(ex);
+            }
+          });
+        });
+
+        test('sets cursor timeout', async function() {
+          this.timeout(10 * 1000);
+
+          const db = await mongo.db(connectionStringCursor, { noCursorTimeout: true });
+          const gridfs = db.gridfs();
+
+          const fileName = uuid();
+          const content = 'jojojo';
+
+          const writeStream = await gridfs.createWriteStream(fileName);
+
+          writeStream.write(content);
+          writeStream.end();
+
+          await new Promise(async (resolve, reject) => {
+            try {
+              let result;
+
+              for (let i = 0; i < 10; i++) {
+                // Wait for a short amount of time to give MongoDB enough time to
+                // actually save the file to GridFS.
+                await sleep(0.1 * 1000);
+
+                result = await gridfs.exist(fileName);
+                if (result) {
+                  // Write is complete. No need to re-check.
+                  break;
+                }
+              }
+
+              assert.that(result).is.true();
+
+              const { stream } = await gridfs.createReadStream(fileName);
+
+              // test for mongo client version
+              assert.that(stream.s).is.ofType('object');
+              assert.that(stream.s.cursor).is.not.undefined();
+
+              stream.on('data', (chunk) => {
+                try {
+                  assert.that(chunk.toString()).is.equalTo(content);
+                  // tests in data event, because cursor is created at first read
+                  assert.that(stream.s.cursor.cmd.noCursorTimeout).is.true();
                 } catch (ex) {
                   reject(ex);
                 }
@@ -223,7 +280,7 @@ suite('mongo', () => {
         });
 
         test('reads file with metadata', async () => {
-          const db = await mongo.db(connectionString);
+          const db = await mongo.db(connectionStringFoo);
           const gridfs = db.gridfs();
 
           const fileName = uuid();
@@ -266,7 +323,7 @@ suite('mongo', () => {
 
       suite('createWriteStream', () => {
         test('throws an error if filename is missing', async () => {
-          const db = await mongo.db(connectionString);
+          const db = await mongo.db(connectionStringFoo);
 
           await assert
             .that(async () => {
@@ -276,7 +333,7 @@ suite('mongo', () => {
         });
 
         test('writes file', async () => {
-          const db = await mongo.db(connectionString);
+          const db = await mongo.db(connectionStringFoo);
           const gridfs = db.gridfs();
 
           const fileName = uuid();
@@ -315,7 +372,7 @@ suite('mongo', () => {
         });
 
         test('writes file with metadata', async () => {
-          const db = await mongo.db(connectionString);
+          const db = await mongo.db(connectionStringFoo);
           const gridfs = db.gridfs();
 
           const fileName = uuid();
@@ -356,7 +413,7 @@ suite('mongo', () => {
         });
 
         test('updates metadata', async () => {
-          const db = await mongo.db(connectionString);
+          const db = await mongo.db(connectionStringFoo);
           const gridfs = db.gridfs();
 
           const fileName = uuid();
@@ -384,7 +441,7 @@ suite('mongo', () => {
 
       suite('exist', () => {
         test('throws an error if filename is missing', async () => {
-          const db = await mongo.db(connectionString);
+          const db = await mongo.db(connectionStringFoo);
 
           await assert
             .that(async () => {
@@ -394,7 +451,7 @@ suite('mongo', () => {
         });
 
         test('returns false if file does not exist', async () => {
-          const db = await mongo.db(connectionString);
+          const db = await mongo.db(connectionStringFoo);
           const fileName = uuid();
 
           const result = await db.gridfs().exist(fileName);
@@ -403,7 +460,7 @@ suite('mongo', () => {
         });
 
         test('returns true if file exists', async () => {
-          const db = await mongo.db(connectionString);
+          const db = await mongo.db(connectionStringFoo);
           const gridfs = db.gridfs();
 
           const fileName = uuid();
@@ -426,7 +483,7 @@ suite('mongo', () => {
 
       suite('unlink', () => {
         test('throws an error if filename is missing', async () => {
-          const db = await mongo.db(connectionString);
+          const db = await mongo.db(connectionStringFoo);
 
           await assert
             .that(async () => {
@@ -436,7 +493,7 @@ suite('mongo', () => {
         });
 
         test('unlinks file', async () => {
-          const db = await mongo.db(connectionString);
+          const db = await mongo.db(connectionStringFoo);
           const gridfs = db.gridfs();
 
           const fileName = uuid();

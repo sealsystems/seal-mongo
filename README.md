@@ -23,7 +23,7 @@ const mongo = require('@sealsystems/mongo');
 Then you can use its `db` function to connect to a MongoDB server. Provide the connection string as parameter:
 
 ```javascript
-const db = await mongo.db('mongodb://localhost:27017/mydb');
+const db = await mongo.db('mongodb://localhost:27017/mydb', options);
 ```
 
 If no connection can be established, @sealsystems/mongo retries to connect ten times, with a pause of 1 second between two connection attempts.
@@ -31,7 +31,8 @@ If no connection can be established, @sealsystems/mongo retries to connect ten t
 If you need to pass options to the MongoDB connection, e.g. for setting write concerns, provide an additional `options` object. For details see the [MongoClient.connect documentation](http://mongodb.github.io/node-mongodb-native/api-generated/mongoclient.html#mongoclient-connect). Additionally the following options can be set:
 
 - `connectionRetries` is the number of retries to connect to MongoDB server, a value of 0 tries to connect only once without retries, default is 10.
-- `waitTimeBetweenRetries` is the time in milliseconds waiting between the retries, default is 1000 ms:
+- `waitTimeBetweenRetries` is the time in milliseconds waiting between the retries, default is 1000 ms.
+- `noCursorTimeout` boolean, a true value is indicating that read stream cursors created by subsequent calls to `createReadStream` are not closed automatically after a timeout.
 
 ```javascript
 const db = await mongo.db('mongodb://localhost:27017/mydb', {
@@ -54,9 +55,13 @@ const gridfs = db.gridfs();
 
 ### gridfs.createReadStream
 
-createReadStream(fileName)
+createReadStream(fileName, options)
 
 - fileName `String` Name of the file to read
+
+The optional options object overrides the default settings set in `db` and may contain:
+
+- `noCursorTimeout` boolean, true is indicating that the read stream cursor created by `createReadStream` is not closed automatically after a timeout.
 
 Opens the file `fileName` for reading and returns as soon the file is opened. The functions returns the data of the file as a `Readable` stream as well as its metadata:
 
