@@ -1,3 +1,14 @@
+## 2.4.0 (2019-11-19)
+
+### Features
+
+
+#### Added option to disable cursor timeouts ([8d25e35](https://github.com/sealsystems/node-mongo/commit/8d25e35))
+
+
+
+---
+
 ## 2.3.0 (2019-10-18)
 
 ### Features
