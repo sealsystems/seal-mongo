@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@sealsystems/eslint-config-es": "3.6.0",
-    "@sealsystems/mocha": "4.1.1",
+    "@sealsystems/mocha": "4.1.3",
     "@sealsystems/semantic-release": "4.0.14",
     "nodeenv": "1.1.0",
     "proxyquire": "2.1.3",
