@@ -1,3 +1,22 @@
+## 2.4.1 (2020-02-12)
+
+### Bug Fixes
+
+
+#### noCursorTimeout and collectionSize removed from mongoConnect.options, [PLS-558](https://jira.sealsystems.de/jira/browse/PLS-558) ([50f6cc3](https://github.com/sealsystems/node-mongo/commit/50f6cc3))
+
+### Chores
+
+
+#### bump async-retry from 1.2.3 to 1.3.1 ([2e76cd3](https://github.com/sealsystems/node-mongo/commit/2e76cd3))
+
+Bumps async-retry from 1.2.3 to 1.3.1.
+
+Signed-off-by: dependabot-preview[bot] <support@dependabot.com>
+
+
+---
+
 ## 2.4.0 (2019-11-19)
 
 ### Features
