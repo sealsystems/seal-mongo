@@ -6,7 +6,9 @@ on:
     - master
 
 env:
+  CONSUL_VERSION: 0.9.3
   LOG_LEVELS: fatal
+  MONGO_VERSION: 3.6.17
   NODE_VERSION: 12.13.1
   TLS_UNPROTECTED: world
 
@@ -16,11 +18,11 @@ jobs:
 
     services:
       mongo:
-        image: mongo:3.6.17
+        image: mongo:${{ env.MONGO_VERSION }}
         ports:
         - 27017:27017
       consul:
-        image: consul:0.9.3
+        image: consul:${{ env.CONSUL_VERSION }}
         ports:
         - 8500:8500
 
@@ -59,12 +61,37 @@ jobs:
 
     - name: Install MongoDB
       run: |
-        choco install --no-progress -y mongodb --version 3.6.0
-        Restart-Service mongodb
+        Write-Host "Downloading https://fastdl.mongodb.org/win32/mongodb-win32-x86_64-2008plus-ssl-$($env:MONGO_VERSION)-signed.zip ..."
+        (New-Object Net.WebClient).DownloadFile(
+          "https://fastdl.mongodb.org/win32/mongodb-win32-x86_64-2008plus-ssl-$($env:MONGO_VERSION)-signed.zip",
+          "C:\mongodb-win32-x86_64-2008plus-ssl-$($env:MONGO_VERSION).zip"
+        )
+
+        Write-Host "Extracting zip archive to C:\mongodb ..."
+        Expand-Archive "C:\mongodb-win32-x86_64-2008plus-ssl-$($env:MONGO_VERSION).zip" -DestinationPath "C:\"
+        Rename-Item "C:\mongodb-win32-x86_64-2008plus-ssl-$($env:MONGO_VERSION)" "C:\mongodb"
+
+        Write-Host "Creating necessary folders in C:\mongodb ..."
+        mkdir c:\mongodb\data\db | Out-Null
+        mkdir c:\mongodb\log | Out-Null
+
+        Write-Host "Writing MongoDB configuration..."
+        "systemLog:
+          destination: file
+          path: c:\mongodb\log\mongod.log
+        storage:
+          dbPath: c:\mongodb\data\db
+        " | Out-File C:\mongodb\mongod.cfg -Encoding utf8
+
+        Write-Host "Creating MonogDB service..."
+        cmd /c start /wait sc create MongoDB binPath= "C:\mongodb\bin\mongod.exe --service --config=C:\mongodb\mongod.cfg" DisplayName= "MongoDB" start= "demand"
+
+        Write-Host "Starting MonogDB service..."
+        Start-Service mongodb
 
     - name: Install Consul
       run: |
-        choco install --no-progress -y consul --version 0.9.3
+        choco install --no-progress -y consul --version $($env:CONSUL_VERSION)
         @{
           bind_addr="127.0.0.1"
           bootstrap_expect=1
