@@ -6,10 +6,6 @@ on:
     - master
 
 env:
-  GIT_AUTHOR_EMAIL: com.git@sealsystems.de
-  GIT_AUTHOR_NAME: CI Build
-  GIT_COMMITTER_EMAIL: com.git@sealsystems.de
-  GIT_COMMITTER_NAME: CI Build
   LOG_LEVELS: fatal
   TLS_UNPROTECTED: world
 
@@ -120,6 +116,14 @@ jobs:
     - Test Windows
 
     runs-on: ubuntu-18.04
+
+    env:
+      GIT_AUTHOR_EMAIL: com.git@sealsystems.de
+      GIT_AUTHOR_NAME: CI Build
+      GIT_COMMITTER_EMAIL: com.git@sealsystems.de
+      GIT_COMMITTER_NAME: CI Build
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
     - uses: actions/checkout@v2
