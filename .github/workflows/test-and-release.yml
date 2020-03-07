@@ -108,8 +108,8 @@ jobs:
 
   Release:
     needs:
-    - Test Linux
-    - Test Windows
+    - Linux-Test
+    - Windows-Test
 
     runs-on: ubuntu-18.04
 
