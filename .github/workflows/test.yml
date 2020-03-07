@@ -6,7 +6,6 @@ on:
     - master
 
 env:
-  CONSUL_VERSION: 0.9.3
   LOG_LEVELS: fatal
   MONGO_VERSION: 3.6.17
   NODE_VERSION: 12.13.1
@@ -18,21 +17,21 @@ jobs:
 
     services:
       mongo:
-        image: mongo:${{ env.MONGO_VERSION }}
+        image: mongo:3.6.17
         ports:
         - 27017:27017
       consul:
-        image: consul:${{ env.CONSUL_VERSION }}
+        image: consul:0.9.3
         ports:
         - 8500:8500
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Use Node.js ${{ env.NODE_VERSION }}
+    - name: Use Node.js 12.13.1
       uses: actions/setup-node@v1
       with:
-        NODE_VERSION: ${{ env.NODE_VERSION }}
+        NODE_VERSION: 12.13.1
 
     - name: Cache Node.js modules
       uses: actions/cache@v1
@@ -40,7 +39,7 @@ jobs:
         cache-name: cache-node-modules
       with:
         path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-        key: ${{ runner.os }}-${{ env.cache-name }}-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-${{ env.cache-name }}-12.13.1-${{ hashFiles('**/package-lock.json') }}
 
     - name: Install dependencies
       run: npm install
@@ -54,22 +53,22 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Use Node.js ${{ env.NODE_VERSION }}
+    - name: Use Node.js 12.13.1
       uses: actions/setup-node@v1
       with:
-        NODE_VERSION: ${{ env.NODE_VERSION }}
+        NODE_VERSION: 12.13.1
 
     - name: Install MongoDB
       run: |
-        Write-Host "Downloading https://fastdl.mongodb.org/win32/mongodb-win32-x86_64-2008plus-ssl-$($env:MONGO_VERSION)-signed.zip ..."
+        Write-Host "Downloading https://fastdl.mongodb.org/win32/mongodb-win32-x86_64-2008plus-ssl-3.6.17.zip ..."
         (New-Object Net.WebClient).DownloadFile(
-          "https://fastdl.mongodb.org/win32/mongodb-win32-x86_64-2008plus-ssl-$($env:MONGO_VERSION)-signed.zip",
-          "C:\mongodb-win32-x86_64-2008plus-ssl-$($env:MONGO_VERSION).zip"
+          "https://fastdl.mongodb.org/win32/mongodb-win32-x86_64-2008plus-ssl-3.6.17-signed.zip",
+          "C:\mongodb-win32-x86_64-2008plus-ssl-3.6.17.zip"
         )
 
         Write-Host "Extracting zip archive to C:\mongodb ..."
-        Expand-Archive "C:\mongodb-win32-x86_64-2008plus-ssl-$($env:MONGO_VERSION).zip" -DestinationPath "C:\"
-        Rename-Item "C:\mongodb-win32-x86_64-2008plus-ssl-$($env:MONGO_VERSION)" "C:\mongodb"
+        Expand-Archive "C:\mongodb-win32-x86_64-2008plus-ssl-3.6.17.zip" -DestinationPath "C:\"
+        Rename-Item "C:\mongodb-win32-x86_64-2008plus-ssl-3.6.17" "C:\mongodb"
 
         Write-Host "Creating necessary folders in C:\mongodb ..."
         mkdir c:\mongodb\data\db | Out-Null
@@ -91,7 +90,7 @@ jobs:
 
     - name: Install Consul
       run: |
-        choco install --no-progress -y consul --version $($env:CONSUL_VERSION)
+        choco install --no-progress -y consul --version 0.9.3
         @{
           bind_addr="127.0.0.1"
           bootstrap_expect=1
@@ -109,7 +108,7 @@ jobs:
     #     cache-name: cache-node-modules
     #   with:
     #     path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-    #     key: ${{ runner.os }}-${{ env.cache-name }}-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
+    #     key: ${{ runner.os }}-${{ env.cache-name }}-12.13.1-${{ hashFiles('**/package-lock.json') }}
 
     - name: Install dependencies
       run: npm install
