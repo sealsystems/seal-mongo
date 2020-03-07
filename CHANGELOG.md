@@ -1,3 +1,14 @@
+## 2.4.2 (2020-03-07)
+
+### Chores
+
+
+#### Update GitHub Actions config ([1f7556f](https://github.com/sealsystems/node-mongo/commit/1f7556f))
+
+
+
+---
+
 ## 2.4.1 (2020-02-12)
 
 ### Bug Fixes
