@@ -58,11 +58,13 @@ jobs:
         NODE_VERSION: ${{ env.NODE_VERSION }}
 
     - name: Install MongoDB
-      run: choco install --no-progress -y mongodb -version 3.6.0
+      run: |
+        choco install --no-progress -y mongodb --version 3.6.0
+        Restart-Service mongodb
 
     - name: Install Consul
       run: |
-        choco install --no-progress -y consul -version 0.9.3
+        choco install --no-progress -y consul --version 0.9.3
         @{
           bind_addr="127.0.0.1"
           bootstrap_expect=1
