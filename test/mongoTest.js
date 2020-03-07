@@ -43,11 +43,11 @@ const connectionStringCursor = `mongodb://localhost:27017/cursor`;
 let restore;
 
 suite('mongo', () => {
-  suiteSetup(() => {
+  suiteSetup(async () => {
     restore = nodeenv('TLS_UNPROTECTED', 'world');
   });
 
-  suiteTeardown(() => {
+  suiteTeardown(async () => {
     restore();
   });
 

@@ -15,7 +15,7 @@ const setTlsOptions = proxyquire('../lib/setTlsOptions', {
 });
 
 suite('setTlsOptions', () => {
-  setup(() => {
+  setup(async () => {
     keystore = { ca: 'ca', cert: 'cert', key: 'key' };
   });
 

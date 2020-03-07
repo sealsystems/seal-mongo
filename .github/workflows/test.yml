@@ -1,0 +1,46 @@
+name: Test
+
+on: [push]
+
+env:
+  GIT_AUTHOR_EMAIL: com.git@sealsystems.de
+  GIT_AUTHOR_NAME: CircleCI Build
+  GIT_COMMITTER_EMAIL: com.git@sealsystems.de
+  GIT_COMMITTER_NAME: CircleCI Build
+  NODE_VERSION: 12.13.1
+  LOG_LEVELS: fatal
+  TLS_UNPROTECTED: world
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:3.6.17
+        port: 27017:27017
+      consul:
+        image: consul:0.9.3
+        port: 8500:8500
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v1
+      with:
+        NODE_VERSION: ${{ env.NODE_VERSION }}
+
+    - name: Cache Node.js modules
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+        key: -${{ runner.os }}-${{ env.cache-name }}-${{ env: NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests
+      run: npm run bot
