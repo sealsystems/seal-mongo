@@ -7,8 +7,6 @@ on:
 
 env:
   LOG_LEVELS: fatal
-  MONGO_VERSION: 3.6.17
-  NODE_VERSION: 12.13.1
   TLS_UNPROTECTED: world
 
 jobs:
@@ -58,7 +56,7 @@ jobs:
       with:
         NODE_VERSION: 12.13.1
 
-    - name: Install MongoDB
+    - name: Install MongoDB 3.6.17
       run: |
         Write-Host "Downloading https://fastdl.mongodb.org/win32/mongodb-win32-x86_64-2008plus-ssl-3.6.17.zip ..."
         (New-Object Net.WebClient).DownloadFile(
@@ -88,7 +86,7 @@ jobs:
         Write-Host "Starting MonogDB service..."
         Start-Service mongodb
 
-    - name: Install Consul
+    - name: Install Consul 0.9.3
       run: |
         choco install --no-progress -y consul --version 0.9.3
         @{
@@ -101,14 +99,6 @@ jobs:
           server=$True
         } | ConvertTo-Json | Out-File -Filepath C:\ProgramData\consul\config\config.json -Encoding ascii
         Restart-Service consul
-
-    # - name: Cache Node.js modules
-    #   uses: actions/cache@v1
-    #   env:
-    #     cache-name: cache-node-modules
-    #   with:
-    #     path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-    #     key: ${{ runner.os }}-${{ env.cache-name }}-12.13.1-${{ hashFiles('**/package-lock.json') }}
 
     - name: Install dependencies
       run: npm install
