@@ -9,10 +9,6 @@ env:
   LOG_LEVELS: fatal
   TLS_UNPROTECTED: world
 
-env:
-  LOG_LEVELS: fatal
-  TLS_UNPROTECTED: world
-
 jobs:
   Test Linux:
     runs-on: ubuntu-18.04
