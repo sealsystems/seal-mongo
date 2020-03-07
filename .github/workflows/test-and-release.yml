@@ -10,7 +10,7 @@ env:
   TLS_UNPROTECTED: world
 
 jobs:
-  Test Linux:
+  Linux-Test:
     runs-on: ubuntu-18.04
 
     services:
@@ -45,7 +45,7 @@ jobs:
     - name: Run tests
       run: npm run bot
 
-  Test Windows:
+  Windows-Test:
     runs-on: windows-2019
 
     steps:
