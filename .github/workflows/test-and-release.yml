@@ -137,5 +137,8 @@ jobs:
         path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
         key: ${{ runner.os }}-${{ env.cache-name }}-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
 
+    - name: Install dependencies
+      run: npm install
+
     - name: Trigger release
       run: npm run release
