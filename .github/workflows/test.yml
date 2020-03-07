@@ -18,10 +18,12 @@ jobs:
     services:
       mongo:
         image: mongo:3.6.17
-        port: 27017:27017
+        ports:
+        - 27017:27017
       consul:
         image: consul:0.9.3
-        port: 8500:8500
+        ports:
+        - 8500:8500
 
     steps:
     - uses: actions/checkout@v2
