@@ -1,3 +1,14 @@
+## 2.4.3 (2020-03-07)
+
+### Chores
+
+
+#### Remove CircleCI and AppVeyor configuration ([3453ac7](https://github.com/sealsystems/node-mongo/commit/3453ac7))
+
+
+
+---
+
 ## 2.4.2 (2020-03-07)
 
 ### Chores
