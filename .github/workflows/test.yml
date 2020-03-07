@@ -11,12 +11,8 @@ env:
   TLS_UNPROTECTED: world
 
 jobs:
-  Test:
-    strategy:
-      matrix:
-        os: [ubuntu-18.04, windows-2019]
-
-    runs-on: ${{ matrix.os }}
+  Linux:
+    runs-on: ubuntu-18.04
 
     services:
       mongo:
@@ -43,6 +39,48 @@ jobs:
       with:
         path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
         key: ${{ runner.os }}-${{ env.cache-name }}-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests
+      run: npm run bot
+
+  Windows:
+    runs-on: windows-2019
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v1
+      with:
+        NODE_VERSION: ${{ env.NODE_VERSION }}
+
+    - name: Install MongoDB
+      run: choco install --no-progress -y mongodb -version 3.6.0
+
+    - name: Install Consul
+      run: |
+        choco install --no-progress -y consul -version 0.9.3
+        @{
+          bind_addr="127.0.0.1"
+          bootstrap_expect=1
+          ports=@{
+            dns=53
+            http=8500
+          }
+          server=$True
+        } | ConvertTo-Json | Out-File -Filepath C:\ProgramData\consul\config\config.json -Encoding ascii
+        Restart-Service consul
+
+    # - name: Cache Node.js modules
+    #   uses: actions/cache@v1
+    #   env:
+    #     cache-name: cache-node-modules
+    #   with:
+    #     path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+    #     key: ${{ runner.os }}-${{ env.cache-name }}-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
 
     - name: Install dependencies
       run: npm install
