@@ -56,6 +56,14 @@ jobs:
       with:
         NODE_VERSION: 12.13.1
 
+    - name: Cache Node.js modules
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: %AppData%/npm-cache # npm cache files are stored in `%AppData%/npm-cache` on Windows
+        key: ${{ runner.os }}-${{ env.cache-name }}-12.13.1-${{ hashFiles('**/package-lock.json') }}
+
     - name: Install MongoDB 3.6.17
       run: |
         Write-Host "Downloading https://fastdl.mongodb.org/win32/mongodb-win32-x86_64-2008plus-ssl-3.6.17.zip ..."
