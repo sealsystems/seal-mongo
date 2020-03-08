@@ -1,0 +1,42 @@
+name: Publish on npmjs.org
+
+on:
+  create:
+    types:
+    - tag
+
+env:
+  LOG_LEVELS: fatal
+  TLS_UNPROTECTED: world
+
+jobs:
+  Publish:
+    runs-on: ubuntu-18.04
+
+    # env:
+    #   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v1
+      with:
+        NODE_VERSION: ${{ env.NODE_VERSION }}
+
+    - name: Cache Node.js modules
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+        key: ${{ runner.os }}-${{ env.cache-name }}-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Publish on npmjs.org
+      run: |
+        echo "Patching package.json..."
+        echo "Publishing..."
+        # npm publish
