@@ -4,7 +4,7 @@ on:
   push:
     branches:
     - master
-    # Ignore changes by releases
+    # Ignore changes made by releases
     paths-ignore:
       - 'package.json'
       - 'CHANGELOG.md'
@@ -119,9 +119,9 @@ jobs:
       run: npm run bot
 
   Release:
-    # needs:
-    # - Test-Linux
-    # - Test-Windows
+    needs:
+    - Test-Linux
+    - Test-Windows
 
     runs-on: ubuntu-18.04
 
@@ -156,9 +156,6 @@ jobs:
 
     - name: Install dependencies
       run: npm install
-
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v1
 
     - name: Trigger release
       run: npm run release
