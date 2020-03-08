@@ -6,8 +6,9 @@ on:
     - master
     # Ignore changes made by releases
     paths-ignore:
-      - 'package.json'
       - 'CHANGELOG.md'
+      - 'package.json'
+      - 'package-lock.json'
 
 env:
   LOG_LEVELS: fatal
