@@ -1,3 +1,18 @@
+## 2.4.6 (2020-03-08)
+
+### Chores
+
+
+#### Publish on npmjs ([8b4de78](https://github.com/sealsystems/node-mongo/commit/8b4de78))
+
+#### Release on npmjs.org ([6e4ddc8](https://github.com/sealsystems/node-mongo/commit/6e4ddc8))
+
+#### Release package on npmjs.org ([4d688ad](https://github.com/sealsystems/node-mongo/commit/4d688ad))
+
+
+
+---
+
 ## 2.4.5 (2020-03-08)
 
 ### Chores
