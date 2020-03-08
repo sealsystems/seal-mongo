@@ -4,6 +4,10 @@ on:
   push:
     branches:
     - master
+    # Ignore changes by releases
+    paths-ignore:
+      - 'package.json'
+      - 'CHANGELOG.md'
 
 env:
   LOG_LEVELS: fatal
@@ -126,11 +130,16 @@ jobs:
       GIT_AUTHOR_NAME: CI Build
       GIT_COMMITTER_EMAIL: com.git@sealsystems.de
       GIT_COMMITTER_NAME: CI Build
+      # Use personal access token for creating releases on GitHub
       GITHUB_TOKEN: ${{ secrets.GITHUB_CI_TOKEN }}
+      # Use personal access token for publishing on GitHub Packages
       NPM_TOKEN: ${{ secrets.GITHUB_CI_TOKEN }}
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        # Use personal access token for cloning (and later pushing) code
+        token: ${{ secrets.GITHUB_CI_TOKEN }}
 
     - name: Use Node.js ${{ env.NODE_VERSION }}
       uses: actions/setup-node@v1
