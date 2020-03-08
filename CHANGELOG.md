@@ -1,3 +1,14 @@
+## 2.4.5 (2020-03-08)
+
+### Chores
+
+
+#### Publish on npmjs ([17d423e](https://github.com/sealsystems/node-mongo/commit/17d423e))
+
+
+
+---
+
 ## 2.4.4 (2020-03-08)
 
 ### Chores
