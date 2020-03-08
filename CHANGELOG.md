@@ -1,3 +1,14 @@
+## 2.4.4 (2020-03-08)
+
+### Chores
+
+
+#### Add workflow to publish on npmjs.org ([88d3eca](https://github.com/sealsystems/node-mongo/commit/88d3eca))
+
+
+
+---
+
 ## 2.4.3 (2020-03-07)
 
 ### Chores
