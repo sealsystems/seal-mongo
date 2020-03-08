@@ -1,3 +1,14 @@
+## 2.4.7 (2020-03-08)
+
+### Chores
+
+
+#### Release on nomjs.org ([3da8e62](https://github.com/sealsystems/node-mongo/commit/3da8e62))
+
+
+
+---
+
 ## 2.4.6 (2020-03-08)
 
 ### Chores
