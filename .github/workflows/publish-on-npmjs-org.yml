@@ -1,20 +1,15 @@
 name: Publish on npmjs.org
 
 on:
-  create:
-    types:
-    - tag
+  release:
+    types: [published]
 
-env:
-  LOG_LEVELS: fatal
-  TLS_UNPROTECTED: world
+# env:
+#   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
 jobs:
   Publish:
     runs-on: ubuntu-18.04
-
-    # env:
-    #   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     steps:
     - uses: actions/checkout@v2
@@ -38,5 +33,7 @@ jobs:
     - name: Publish on npmjs.org
       run: |
         echo "Patching package.json..."
+        sed -i 's|"registry": "https://npm.pkg.github.com"|"registry": "https://registry.npmjs.org"|' package.json
+        cat package.json
         echo "Publishing..."
         # npm publish
