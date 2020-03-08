@@ -1,8 +1,8 @@
-name: Test
+name: Master
 
 on:
   push:
-    branches-ignore:
+    branches:
     - master
 
 env:
@@ -10,15 +10,7 @@ env:
   TLS_UNPROTECTED: world
 
 jobs:
-  Cleanup:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: rokroskar/workflow-run-cleanup-action@master
-      env:
-        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-
-  Linux:
+  Test-Linux:
     runs-on: ubuntu-18.04
 
     services:
@@ -53,7 +45,7 @@ jobs:
     - name: Run tests
       run: npm run bot
 
-  Windows:
+  Test-Windows:
     runs-on: windows-2019
 
     steps:
@@ -69,7 +61,7 @@ jobs:
       env:
         cache-name: cache-node-modules
       with:
-        path: C:\Users\runneradmin\AppData\Roaming\npm-cache # npm cache files are stored in `%AppData%/npm-cache` on Windows
+        path: '%AppData%/npm-cache' # npm cache files are stored in `%AppData%/npm-cache` on Windows
         key: ${{ runner.os }}-${{ env.cache-name }}-12.13.1-${{ hashFiles('**/package-lock.json') }}
 
     - name: Install MongoDB 3.6.17
@@ -121,3 +113,40 @@ jobs:
 
     - name: Run tests
       run: npm run bot
+
+  Release:
+    needs:
+    - Test-Linux
+    - Test-Windows
+
+    runs-on: ubuntu-18.04
+
+    env:
+      GIT_AUTHOR_EMAIL: com.git@sealsystems.de
+      GIT_AUTHOR_NAME: CI Build
+      GIT_COMMITTER_EMAIL: com.git@sealsystems.de
+      GIT_COMMITTER_NAME: CI Build
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v1
+      with:
+        NODE_VERSION: ${{ env.NODE_VERSION }}
+
+    - name: Cache Node.js modules
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+        key: ${{ runner.os }}-${{ env.cache-name }}-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Trigger release
+      run: npm run release
