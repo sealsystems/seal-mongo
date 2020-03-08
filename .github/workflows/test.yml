@@ -59,9 +59,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Print ENV
-      run: Get-Childitem -Path Env:* | Sort-Object Name
-
     - name: Use Node.js 12.13.1
       uses: actions/setup-node@v1
       with:
@@ -72,7 +69,7 @@ jobs:
       env:
         cache-name: cache-node-modules
       with:
-        path: C:\Users\runner\AppData\Roaming\npm-cache # npm cache files are stored in `%AppData%/npm-cache` on Windows
+        path: C:\Users\runneradmin\AppData\Roaming\npm-cache # npm cache files are stored in `%AppData%/npm-cache` on Windows
         key: ${{ runner.os }}-${{ env.cache-name }}-12.13.1-${{ hashFiles('**/package-lock.json') }}
 
     - name: Install MongoDB 3.6.17
