@@ -4,8 +4,8 @@ on:
   release:
     types: [published]
 
-# env:
-#   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+env:
+  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
 jobs:
   Publish:
@@ -36,4 +36,4 @@ jobs:
         sed -i 's|"registry": "https://npm.pkg.github.com"|"registry": "https://registry.npmjs.org"|' package.json
         cat package.json
         echo "Publishing..."
-        # npm publish
+        npm publish
