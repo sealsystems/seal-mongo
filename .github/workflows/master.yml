@@ -45,8 +45,8 @@ jobs:
         path: ~/.npm
         key: ${{ runner.os }}-${{ env.cache-name }}-12.13.1-${{ hashFiles('**/package-lock.json') }}
 
-    - name: Install dependencies
-      run: npm install
+    - name: Install dependencies for CI
+      run: npm ci
 
     - name: Run tests
       run: npm run bot
