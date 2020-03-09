@@ -49,7 +49,7 @@ jobs:
         key: ${{ runner.os }}-${{ env.cache-name }}-12.13.1-${{ hashFiles('**/package-lock.json') }}
 
     - name: Install dependencies
-      run: npm install
+      run: npm ci
 
     - name: Run tests
       run: npm run bot
@@ -119,7 +119,7 @@ jobs:
         Restart-Service consul
 
     - name: Install dependencies
-      run: npm install
+      run: npm ci
 
     - name: Run tests
       run: npm run bot
