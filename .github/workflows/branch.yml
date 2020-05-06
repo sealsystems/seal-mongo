@@ -24,6 +24,8 @@ jobs:
     services:
       mongo:
         image: mongo:3.6.17
+        volumes:
+          - ${{github.workspace}}/.github/scripts/initdb.js:/docker-entrypoint-initdb.d/initdb.js
         ports:
         - 27017:27017
       consul:
