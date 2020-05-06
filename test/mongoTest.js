@@ -24,14 +24,14 @@ const mongoMock = proxyquire('../lib/mongo', {
         return {
           async db() {
             return options;
-          }
+          },
         };
-      }
-    }
-  }
+      },
+    },
+  },
 });
 
-const sleep = function(ms) {
+const sleep = function (ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
@@ -68,33 +68,33 @@ suite('mongo', () => {
         .is.throwingAsync('Connection string is missing.');
     });
 
-    test('throws an error if the given MongoDB is not reachable.', async function() {
+    test('throws an error if the given MongoDB is not reachable.', async function () {
       this.timeout(10 * 1000);
 
       await assert
         .that(async () => {
           await mongo.db('mongodb://localhost:12345/foo', {
             connectionRetries: 1,
-            waitTimeBetweenRetries: 1000
+            waitTimeBetweenRetries: 1000,
           });
         })
         .is.throwingAsync((ex) => ex.name === 'MongoNetworkError');
     });
 
-    test('connectionRetries equals to 0 does try to connect only once.', async function() {
+    test('connectionRetries equals to 0 does try to connect only once.', async function () {
       this.timeout(10 * 1000);
 
       await assert
         .that(async () => {
           await mongo.db('mongodb://localhost:12345/foo', {
             connectionRetries: 0,
-            waitTimeBetweenRetries: 1000
+            waitTimeBetweenRetries: 1000,
           });
         })
         .is.throwingAsync((ex) => ex.name === 'MongoNetworkError');
     });
 
-    test('returns a reference to the database.', async function() {
+    test('returns a reference to the database.', async function () {
       this.timeout(10 * 1000);
       const db = await mongo.db(connectionStringFoo);
 
@@ -175,7 +175,7 @@ suite('mongo', () => {
             .is.throwingAsync();
         });
 
-        test('reads file', async function() {
+        test('reads file', async function () {
           this.timeout(10 * 1000);
 
           const db = await mongo.db(connectionStringFoo);
@@ -225,7 +225,7 @@ suite('mongo', () => {
           });
         });
 
-        test('sets cursor timeout', async function() {
+        test('sets cursor timeout', async function () {
           this.timeout(10 * 1000);
 
           const db = await mongo.db(connectionStringCursor, { noCursorTimeout: true });
@@ -518,6 +518,25 @@ suite('mongo', () => {
 
           assert.that(result2).is.false();
         });
+      });
+    });
+
+    suite.only('watch', () => {
+      test('playground', async () => {
+        const db = await mongo.db(connectionStringFoo);
+        const collection = db.collection('mycol');
+        const testDocument = { foo: 'bar' };
+
+        const w = new Promise((resolve) => {
+          db.watch(collection).on('insert', (doc) => {
+            assert.that(doc.fullDocument).is.equalTo(testDocument);
+            resolve();
+          });
+        });
+
+        await new Promise((r) => setTimeout(r, 500));
+        await collection.insertOne(testDocument);
+        return w;
       });
     });
   });
