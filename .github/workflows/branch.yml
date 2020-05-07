@@ -24,7 +24,6 @@ jobs:
     services:
       mongo:
         image: mongo:3.6.17
-        command: --replSet rs
         ports:
         - 27017:27017
       consul:
