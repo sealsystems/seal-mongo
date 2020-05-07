@@ -105,7 +105,7 @@ jobs:
         Start-Service mongodb
 
         Write-Host "Initiate MonogDB replicaSet..."
-        cmd /c start /wait C:\mongodb\bin\mongo.exe --eval 'rs.initiate()'
+        C:\mongodb\bin\mongo.exe --eval 'rs.initiate()'
 
     - name: Install Consul 0.9.3
       run: |
