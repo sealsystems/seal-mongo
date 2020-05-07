@@ -524,16 +524,15 @@ suite('mongo', () => {
     suite('watch', () => {
       test('playground', async () => {
         const db = await mongo.db(connectionStringFoo);
-        const collection = db.collection('mycol');
+        const collection = db.collection('mycol', { slaveOk: true });
+        await collection.insertOne({}); // to init db and collection
         const testDocument = { foo: 'bar' };
-
         const w = new Promise((resolve) => {
           db.watch(collection).on('insert', (doc) => {
             assert.that(doc.fullDocument).is.equalTo(testDocument);
             resolve();
           });
         });
-
         await new Promise((r) => setTimeout(r, 500));
         await collection.insertOne(testDocument);
         return w;

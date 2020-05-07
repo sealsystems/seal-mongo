@@ -11,7 +11,7 @@
   "scripts": {
     "bot": "bot",
     "release": "release",
-    "pretest": "docker exec `docker ps --filter expose=27017 -q` mongo --eval 'rs.initiate();'" ,
+    "pretest": "docker exec `docker ps --filter expose=27017 -q` mongo --eval 'rs.initiate()';   sleep 5s;",
     "test": "test-run",
     "licenses": "license-checker --production --csv",
     "lint": "lint",
