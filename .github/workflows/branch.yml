@@ -99,10 +99,13 @@ jobs:
         " | Out-File C:\mongodb\mongod.cfg -Encoding utf8
 
         Write-Host "Creating MonogDB service..."
-        cmd /c start /wait sc create MongoDB binPath= "C:\mongodb\bin\mongod.exe --service --config=C:\mongodb\mongod.cfg" DisplayName= "MongoDB" start= "demand"
+        cmd /c start /wait sc create MongoDB binPath= "C:\mongodb\bin\mongod.exe --service --config=C:\mongodb\mongod.cfg --replSet rs" DisplayName= "MongoDB" start= "demand"
 
         Write-Host "Starting MonogDB service..."
         Start-Service mongodb
+
+        Write-Host "Creating MonogDB service..."
+        cmd /c start /wait C:\mongodb\bin\mongod.exe --eval "rs.initiate()"
 
     - name: Install Consul 0.9.3
       run: |
