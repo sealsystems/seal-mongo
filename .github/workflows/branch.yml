@@ -23,7 +23,7 @@ jobs:
 
     services:
       mongo:
-        image: mongo:3.6.17
+        image: plossys/mongodb-rs:latest
         ports:
         - 27017:27017
       consul:
