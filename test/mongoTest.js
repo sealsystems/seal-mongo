@@ -2,7 +2,7 @@
 'use strict';
 
 const assert = require('assertthat');
-const nodeenv = require('nodeenv');
+const { nodeenv } = require('nodeenv');
 const proxyquire = require('proxyquire');
 const { v4: uuid } = require('uuid');
 
