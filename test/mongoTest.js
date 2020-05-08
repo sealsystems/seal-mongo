@@ -4,7 +4,7 @@
 const assert = require('assertthat');
 const nodeenv = require('nodeenv');
 const proxyquire = require('proxyquire');
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 
 const mongo = require('../lib/mongo');
 
@@ -130,7 +130,7 @@ suite('mongo', () => {
 
       await assert
         .that(async () => {
-          await coll.insert({ foo: 'bar' });
+          await coll.insertOne({ foo: 'bar' });
         })
         .is.not.throwingAsync();
     });
