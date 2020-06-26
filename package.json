@@ -1,6 +1,6 @@
 {
   "name": "seal-mongo",
-  "version": "2.1.4",
+  "version": "2.1.9",
   "description": "seal-mongo makes it easy to connect to MongoDB reliably.",
   "author": {
     "name": "SEAL Systems AG",
@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "getenv": "0.7.0",
-    "mongodb": "2.2.22",
+    "mongodb": "3.5.9",
     "retry": "0.10.1",
     "seal-tlscert": "1.2.1"
   },
