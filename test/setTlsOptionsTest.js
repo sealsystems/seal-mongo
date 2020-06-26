@@ -7,14 +7,14 @@ const proxyquire = require('proxyquire');
 let keystore;
 const setTlsOptions = proxyquire('../lib/setTlsOptions', {
   'seal-tlscert': {
-    get () {
+    get() {
       return keystore;
     }
   }
 });
 
 suite('setTlsOptions', () => {
-  setup(() => {
+  setup(async () => {
     keystore = {
       ca: 'ca',
       cert: 'cert',
@@ -28,13 +28,15 @@ suite('setTlsOptions', () => {
   });
 
   test('throws an error if options are missing.', (done) => {
-    assert.that(() => {
-      setTlsOptions();
-    }).is.throwing('Options are missing.');
+    assert
+      .that(() => {
+        setTlsOptions();
+      })
+      .is.throwing('Options are missing.');
     done();
   });
 
-  test('does not set TLS options if TLS_UNPROTECTED is set to \'world\'.', (done) => {
+  test("does not set TLS options if TLS_UNPROTECTED is set to 'world'.", (done) => {
     const options = {
       foo: 'bar'
     };
@@ -49,7 +51,7 @@ suite('setTlsOptions', () => {
     });
   });
 
-  test('does not set TLS options if TLS_UNPROTECTED is set to \'dc\'.', (done) => {
+  test("does not set TLS options if TLS_UNPROTECTED is set to 'dc'.", (done) => {
     const options = {
       foo: 'bar'
     };
@@ -65,45 +67,57 @@ suite('setTlsOptions', () => {
   });
 
   test('enforces SSL encryption.', (done) => {
-    const options = {
-      foo: 'bar'
-    };
+    nodeenv('TLS_UNPROTECTED', 'loopback', (restore) => {
+      const options = {
+        foo: 'bar'
+      };
 
-    setTlsOptions(options);
-    assert.that(options.ssl).is.true();
-    done();
+      setTlsOptions(options);
+      assert.that(options.ssl).is.true();
+      restore();
+      done();
+    });
   });
 
   test('returns CA certificate, client certificate and key.', (done) => {
-    const options = {};
+    nodeenv('TLS_UNPROTECTED', 'loopback', (restore) => {
+      const options = {};
 
-    setTlsOptions(options);
-    assert.that(options.sslCA).is.equalTo(['ca']);
-    assert.that(options.sslCert).is.equalTo('cert');
-    assert.that(options.sslKey).is.equalTo('key');
-    done();
+      setTlsOptions(options);
+      assert.that(options.sslCA).is.equalTo(['ca']);
+      assert.that(options.sslCert).is.equalTo('cert');
+      assert.that(options.sslKey).is.equalTo('key');
+      restore();
+      done();
+    });
   });
 
   test('enforces validation if CA certificate is given.', (done) => {
-    const options = {};
+    nodeenv('TLS_UNPROTECTED', 'loopback', (restore) => {
+      const options = {};
 
-    setTlsOptions(options);
-    assert.that(options.sslValidate).is.true();
-    done();
+      setTlsOptions(options);
+      assert.that(options.sslValidate).is.true();
+      restore();
+      done();
+    });
   });
 
   test('does not provide certificates for client authentication if CA certificate is missing.', (done) => {
-    const options = {};
+    nodeenv('TLS_UNPROTECTED', 'loopback', (restore) => {
+      const options = {};
 
-    keystore = {
-      cert: 'cert',
-      key: 'key'
-    };
+      keystore = {
+        cert: 'cert',
+        key: 'key'
+      };
 
-    setTlsOptions(options);
-    assert.that(options).is.equalTo({
-      ssl: true
+      setTlsOptions(options);
+      assert.that(options).is.equalTo({
+        ssl: true
+      });
+      restore();
+      done();
     });
-    done();
   });
 });

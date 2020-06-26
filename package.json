@@ -1,21 +1,25 @@
 {
   "name": "seal-mongo",
-  "version": "2.1.9",
+  "version": "2.1.10",
   "description": "seal-mongo makes it easy to connect to MongoDB reliably.",
   "author": {
     "name": "SEAL Systems AG",
     "email": "opensource@sealsystems.de",
     "url": "https://www.sealsystems.de"
   },
-  "license": "MIT",
+  "license": "SEAL End User License",
   "scripts": {
     "bot": "bot",
-    "release": "bot release && npm publish",
+    "release": "release",
     "release-minor": "bot release --type minor && npm publish",
     "release-major": "bot release --type major && npm publish",
-    "test": "bot test-units",
-    "coverage": "istanbul cover _mocha -- --recursive --ui tdd ",
-    "report": "npm run coverage && if [[ $OSTYPE == darwin* ]]; then open=open; else open=xdg-open; fi && $open coverage/lcov-report/index.html"
+    "test": "test-run",
+    "licenses": "license-checker --production --csv",
+    "lint": "lint",
+    "lint:fix": "lint-fix",
+    "test:coverage": "test-coverage",
+    "test:coverage:check": "test-coverage-check",
+    "test:report": "test-report"
   },
   "main": "lib/mongo.js",
   "repository": {
@@ -25,17 +29,24 @@
   "dependencies": {
     "getenv": "0.7.0",
     "mongodb": "3.5.9",
+    "mongodb-uri": "0.9.7",
     "retry": "0.10.1",
     "seal-tlscert": "1.2.1"
   },
   "devDependencies": {
-    "assertthat": "0.8.3",
+    "@sealsystems/eslint-config-es": "3.6.3",
+    "@sealsystems/mocha": "4.1.4",
+    "@sealsystems/semantic-release": "4.3.0",
     "docker-host": "3.1.0",
     "eslint-config-seal": "0.0.9",
     "moment": "2.17.1",
     "proxyquire": "1.7.11",
-    "roboter": "0.13.7",
-    "roboter-server": "0.13.7",
     "uuid": "3.0.1"
+  },
+  "release": {
+    "extends": "@sealsystems/semantic-release/node-module"
+  },
+  "publishConfig": {
+    "registry": "https://plossys.jfrog.io/plossys/api/npm/npm-local"
   }
 }

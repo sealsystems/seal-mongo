@@ -1,0 +1,154 @@
+version: 2
+
+x-environment: &environment
+  CONSUL_VERSION: 0.9.3
+  GIT_AUTHOR_EMAIL: com.git@sealsystems.de
+  GIT_AUTHOR_NAME: CircleCI Build
+  GIT_COMMITTER_EMAIL: com.git@sealsystems.de
+  GIT_COMMITTER_NAME: CircleCI Build
+  LOG_LEVELS: fatal
+  NODE_VERSION: 12.13.1
+  TLS_UNPROTECTED: world
+
+jobs:
+  update-build-config:
+    docker:
+      - image: circleci/node:12.13.1
+
+    environment:
+      <<: *environment
+      HUB_VERSION: 2.13.0
+
+    steps:
+      - checkout
+      - run: &configure-node-js
+          name: Configure Node.js
+          command: |
+            curl -L -k -u "${JFROG_CREDENTIALS}" "https://plossys.jfrog.io/plossys/api/npm/auth" > ~/.npmrc
+            npm config set registry https://plossys.jfrog.io/plossys/api/npm/npm-repo
+            node --version
+      - run:
+          name: Install yeoman
+          command: npm install --no-save --force yo generator-seal-node
+      - run:
+          name: Download hub
+          command: |
+            pushd /tmp
+            curl -L -o hub.tgz https://github.com/github/hub/releases/download/v${HUB_VERSION}/hub-linux-amd64-${HUB_VERSION}.tgz
+            tar -xzf hub.tgz
+            mv ./hub-linux-amd64-${HUB_VERSION}/bin/hub hub
+            popd
+      - run:
+          name: Update build config
+          command: npx yo seal-node:module --force --local-only
+      - run:
+          name: Commit changes
+          command: |
+            git checkout -b nightly/update-build-config || git checkout nightly/update-build-config
+            git add .
+            # Remove package-lock.json from index
+            git reset -- package-lock.json
+            git commit -m "Update build configuration" || exit 0
+            # Other files have also been changed, so we can include package-lock.json again
+            git add package-lock.json && git commit --amend --no-edit
+            git push --force -u origin nightly/update-build-config
+            if [ -z "$(/tmp/hub pr list -h `git rev-parse --abbrev-ref HEAD`)" ]; then
+              /tmp/hub pull-request -m "Update build configuration" --no-edit -r ""
+            fi
+
+  test:
+    docker:
+      - image: circleci/node:12.13.1
+      - image: mongo:3.6.17
+      - image: consul:0.9.3
+
+    environment:
+      <<: *environment
+
+    steps:
+      - checkout
+      - run:
+          <<: *configure-node-js
+      - restore_cache: &restore-cache
+          key: dependency-cache-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}-{{ checksum ".circleci/config.yml" }}
+      - run: &install-dependencies
+          name: Install dependencies
+          command: |
+            if [ ! -d ./node_modules ]; then
+              npm install
+            fi
+      - save_cache: &save-cache
+          key: dependency-cache-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}-{{ checksum ".circleci/config.yml" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: Run tests
+          command: npm run bot
+      - run:
+          name: Run code coverage
+          command: npm run test:coverage
+      - store_artifacts:
+          path: coverage/lcov-report
+          destination: coverage
+
+  release:
+    docker:
+      - image: circleci/node:12.13.1
+
+    environment:
+      <<: *environment
+
+    steps:
+      - checkout
+      - run:
+          <<: *configure-node-js
+      - restore_cache:
+          <<: *restore-cache
+      - run:
+          <<: *install-dependencies
+      - save_cache:
+          <<: *save-cache
+      - run:
+          name: Trigger release
+          command: npm run release
+
+workflows:
+  version: 2
+
+  Nightly:
+    jobs:
+      - update-build-config
+    triggers:
+      - schedule:
+          cron: "0 20 * * *"
+          filters:
+            branches:
+              only:
+                - master
+
+  # Run only on feature branches, not on master or bugfix branches
+  test:
+    jobs:
+      - test:
+          filters: &no-release-branch
+            branches:
+              ignore:
+                - master
+                # bugfix banches (e.g. 1.2.x)
+                - /\d+\.\d+\.x/
+
+  # Run only on master or bugfix branches
+  test-and-release:
+    jobs:
+      - test:
+          filters: &only-release-branch
+            branches:
+              only:
+                - master
+                # bugfix release banches (e.g. 1.2.x)
+                - /\d+\.\d+\.x/
+      - release:
+          filters:
+            <<: *only-release-branch
+          requires:
+            - test
