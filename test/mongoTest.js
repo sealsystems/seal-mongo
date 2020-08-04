@@ -2,9 +2,9 @@
 'use strict';
 
 const assert = require('assertthat');
-const nodeenv = require('nodeenv');
+const { nodeenv } = require('nodeenv');
 const proxyquire = require('proxyquire');
-const uuid = require('uuid/v4');
+const { v4: uuidv4 } = require('uuid');
 
 const mongo = require('../lib/mongo');
 
@@ -75,10 +75,14 @@ suite('mongo', () => {
         .that(async () => {
           await mongo.db('mongodb://localhost:12345/foo', {
             connectionRetries: 1,
-            waitTimeBetweenRetries: 1000
+            waitTimeBetweenRetries: 1000,
+            serverSelectionTimeoutMS: 500
           });
         })
-        .is.throwingAsync((ex) => ex.name === 'MongoNetworkError');
+        //        .is.throwingAsync((ex) => ex.name === 'MongoNetworkError');
+        .is.throwingAsync((ex) => {
+          return ex.name === 'MongoServerSelectionError';
+        });
     });
 
     test('connectionRetries equals to 0 does try to connect only once.', async function() {
@@ -88,10 +92,14 @@ suite('mongo', () => {
         .that(async () => {
           await mongo.db('mongodb://localhost:12345/foo', {
             connectionRetries: 0,
-            waitTimeBetweenRetries: 1000
+            waitTimeBetweenRetries: 1000,
+            serverSelectionTimeoutMS: 500
           });
         })
-        .is.throwingAsync((ex) => ex.name === 'MongoNetworkError');
+        //        .is.throwingAsync((ex) => ex.name === 'MongoNetworkError');
+        .is.throwingAsync((ex) => {
+          return ex.name === 'MongoServerSelectionError';
+        });
     });
 
     test('returns a reference to the database.', async function() {
@@ -126,7 +134,7 @@ suite('mongo', () => {
 
     test('connects to database', async () => {
       const db = await mongo.db(connectionStringFoo);
-      const coll = db.collection(uuid());
+      const coll = db.collection(uuidv4());
 
       await assert
         .that(async () => {
@@ -166,7 +174,7 @@ suite('mongo', () => {
           const db = await mongo.db(connectionStringFoo);
           const gridfs = db.gridfs();
 
-          const fileName = uuid();
+          const fileName = uuidv4();
 
           await assert
             .that(async () => {
@@ -181,7 +189,7 @@ suite('mongo', () => {
           const db = await mongo.db(connectionStringFoo);
           const gridfs = db.gridfs();
 
-          const fileName = uuid();
+          const fileName = uuidv4();
           const content = 'hohoho';
 
           const writeStream = await gridfs.createWriteStream(fileName);
@@ -231,7 +239,7 @@ suite('mongo', () => {
           const db = await mongo.db(connectionStringCursor, { noCursorTimeout: true });
           const gridfs = db.gridfs();
 
-          const fileName = uuid();
+          const fileName = uuidv4();
           const content = 'jojojo';
 
           const writeStream = await gridfs.createWriteStream(fileName);
@@ -283,7 +291,7 @@ suite('mongo', () => {
           const db = await mongo.db(connectionStringFoo);
           const gridfs = db.gridfs();
 
-          const fileName = uuid();
+          const fileName = uuidv4();
           const content = 'hohoho';
           const writeMetadata = { foo: 'bar' };
 
@@ -336,7 +344,7 @@ suite('mongo', () => {
           const db = await mongo.db(connectionStringFoo);
           const gridfs = db.gridfs();
 
-          const fileName = uuid();
+          const fileName = uuidv4();
           const content = 'hohoho';
 
           const writeStream = await gridfs.createWriteStream(fileName);
@@ -375,7 +383,7 @@ suite('mongo', () => {
           const db = await mongo.db(connectionStringFoo);
           const gridfs = db.gridfs();
 
-          const fileName = uuid();
+          const fileName = uuidv4();
           const content = 'hohoho';
           const writeMetadata = { foo: 'bar' };
 
@@ -416,7 +424,7 @@ suite('mongo', () => {
           const db = await mongo.db(connectionStringFoo);
           const gridfs = db.gridfs();
 
-          const fileName = uuid();
+          const fileName = uuidv4();
           const content = 'hohoho';
           const writeStream = await gridfs.createWriteStream(fileName);
 
@@ -452,7 +460,7 @@ suite('mongo', () => {
 
         test('returns false if file does not exist', async () => {
           const db = await mongo.db(connectionStringFoo);
-          const fileName = uuid();
+          const fileName = uuidv4();
 
           const result = await db.gridfs().exist(fileName);
 
@@ -463,7 +471,7 @@ suite('mongo', () => {
           const db = await mongo.db(connectionStringFoo);
           const gridfs = db.gridfs();
 
-          const fileName = uuid();
+          const fileName = uuidv4();
           const content = 'hohoho';
 
           const stream = await gridfs.createWriteStream(fileName);
@@ -496,7 +504,7 @@ suite('mongo', () => {
           const db = await mongo.db(connectionStringFoo);
           const gridfs = db.gridfs();
 
-          const fileName = uuid();
+          const fileName = uuidv4();
           const content = 'hohoho';
 
           const stream = await gridfs.createWriteStream(fileName);

@@ -138,3 +138,23 @@ To build this module use [roboter](https://www.npmjs.com/package/roboter).
 ```shell
 $ bot
 ```
+
+## Test Hint
+
+For testing start own mongo without ssl. Add the `--replSet rs` option if you want a replication set:
+
+```bash
+docker run -d --name db -p 27017:27017 mongo:3.6.17 --replSet rs
+```
+
+In case of a replication set you need to initialize it:
+
+```bash
+docker exec -it db mongo --eval 'rs.initiate()'
+```
+
+Run tests
+
+```bash
+npm run test
+```
