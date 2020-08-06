@@ -20,3 +20,6 @@ temp/
 # Misc
 *.stat
 *.log
+
+# VSCode
+.vscode/settings.json
