@@ -1,3 +1,24 @@
+## 3.0.0 (2020-08-06)
+
+### Chores
+
+
+bump [@sealsystems](https://github.com/sealsystems)/log from 2.2.1 to 2.2.2 ([#108](https://github.com/sealsystems/node-mongo/issues/108)) ([65cb642](https://github.com/sealsystems/node-mongo/commit/65cb642))
+
+bump [@sealsystems](https://github.com/sealsystems)/tlscert from 2.3.7 to 2.3.8 ([#110](https://github.com/sealsystems/node-mongo/issues/110)) ([780d9f3](https://github.com/sealsystems/node-mongo/commit/780d9f3))
+
+### Features
+
+
+Use nodejs driver 3.6.0 ([f248bb5](https://github.com/sealsystems/node-mongo/commit/f248bb5))
+
+
+
+### BREAKING CHANGES
+
+Because of the new driver and the use of new unified topology the thrown connect errors changed from `MongoNetworkError` to `MongoServerSelectionError`.
+Maybe additional work needs to be done in the `node-assert-mongo-error` repository to check for that errors.
+
 ## 2.4.8 (2020-03-11)
 
 ### Chores
