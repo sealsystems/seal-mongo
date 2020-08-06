@@ -8,6 +8,16 @@ const { v4: uuidv4 } = require('uuid');
 
 const mongo = require('../lib/mongo');
 
+const MockMongoClient = function(urlString, options) {
+  this.options = options;
+  this.connect = async () => {
+    // empty
+  };
+  this.db = async () => {
+    return this.options;
+  };
+};
+
 const mongoMock = proxyquire('../lib/mongo', {
   async './setTlsOptions'(options) {
     options.sslCA = ['ca'];
@@ -19,15 +29,7 @@ const mongoMock = proxyquire('../lib/mongo', {
   },
 
   mongodb: {
-    MongoClient: {
-      async connect(connectionString, options) {
-        return {
-          async db() {
-            return options;
-          }
-        };
-      }
-    }
+    MongoClient: MockMongoClient
   }
 });
 
