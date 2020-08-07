@@ -1,3 +1,10 @@
+## 3.0.1 (2020-08-07)
+
+### Bug Fixes
+
+
+do not validate certs if self signed certs are used ([e5209d5](https://github.com/sealsystems/node-mongo/commit/e5209d5))
+
 ## 3.0.0 (2020-08-06)
 
 ### Chores
