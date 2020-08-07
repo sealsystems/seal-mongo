@@ -73,35 +73,33 @@ suite('mongo', () => {
     test('throws an error if the given MongoDB is not reachable.', async function() {
       this.timeout(10 * 1000);
 
-      await assert
-        .that(async () => {
-          await mongo.db('mongodb://localhost:12345/foo', {
-            connectionRetries: 1,
-            waitTimeBetweenRetries: 1000,
-            serverSelectionTimeoutMS: 500
-          });
-        })
-        //        .is.throwingAsync((ex) => ex.name === 'MongoNetworkError');
-        .is.throwingAsync((ex) => {
-          return ex.name === 'MongoServerSelectionError';
+      try {
+        await mongo.db('mongodb://localhost:12345/foo', {
+          connectionRetries: 1,
+          waitTimeBetweenRetries: 1000,
+          serverSelectionTimeoutMS: 500
         });
+        throw new Error('X');
+      } catch (err) {
+        assert.that(err.name).is.equalTo('MongoServerSelectionError');
+        assert.that(err.message).is.containing('ECONNREFUSED');
+      }
     });
 
     test('connectionRetries equals to 0 does try to connect only once.', async function() {
       this.timeout(10 * 1000);
 
-      await assert
-        .that(async () => {
-          await mongo.db('mongodb://localhost:12345/foo', {
-            connectionRetries: 0,
-            waitTimeBetweenRetries: 1000,
-            serverSelectionTimeoutMS: 500
-          });
-        })
-        //        .is.throwingAsync((ex) => ex.name === 'MongoNetworkError');
-        .is.throwingAsync((ex) => {
-          return ex.name === 'MongoServerSelectionError';
+      try {
+        await mongo.db('mongodb://localhost:12345/foo', {
+          connectionRetries: 0,
+          waitTimeBetweenRetries: 1000,
+          serverSelectionTimeoutMS: 500
         });
+        throw new Error('X');
+      } catch (err) {
+        assert.that(err.name).is.equalTo('MongoServerSelectionError');
+        assert.that(err.message).is.containing('ECONNREFUSED');
+      }
     });
 
     test('returns a reference to the database.', async function() {
