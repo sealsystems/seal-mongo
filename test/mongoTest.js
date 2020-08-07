@@ -18,6 +18,7 @@ const MockMongoClient = function(urlString, options) {
   };
 };
 
+let isFallback;
 const mongoMock = proxyquire('../lib/mongo', {
   async './setTlsOptions'(options) {
     options.sslCA = ['ca'];
@@ -27,9 +28,15 @@ const mongoMock = proxyquire('../lib/mongo', {
 
     return options;
   },
-
   mongodb: {
     MongoClient: MockMongoClient
+  },
+  '@sealsystems/tlscert': {
+    async get() {
+      return {
+        isFallback
+      };
+    }
   }
 });
 
@@ -41,6 +48,7 @@ const sleep = function(ms) {
 
 const connectionStringFoo = `mongodb://localhost:27017/foo`;
 const connectionStringBar = `mongodb://localhost:27017/bar`;
+const connectionStringBaz = `mongodb://localhost:27017/baz`;
 const connectionStringCursor = `mongodb://localhost:27017/cursor`;
 let restore;
 
@@ -51,6 +59,10 @@ suite('mongo', () => {
 
   suiteTeardown(async () => {
     restore();
+  });
+
+  setup(async () => {
+    isFallback = true;
   });
 
   test('is an object.', async () => {
@@ -118,6 +130,14 @@ suite('mongo', () => {
       assert.that(connectOptions).is.ofType('object');
       assert.that(connectOptions.sslCA).is.equalTo(['ca']);
       assert.that(connectOptions.sslValidate).is.true();
+      assert.that(connectOptions.tlsAllowInvalidCertificates).is.true();
+    });
+
+    test('does validate if not own self sign certificates.', async () => {
+      isFallback = false;
+      const connectOptions = await mongoMock.db(connectionStringBaz);
+
+      assert.that(connectOptions.tlsAllowInvalidCertificates).is.false();
     });
 
     test('returns the same reference if called twice with the same connection string.', async () => {
