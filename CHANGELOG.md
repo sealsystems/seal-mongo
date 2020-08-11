@@ -1,3 +1,10 @@
+## 3.0.2 (2020-08-11)
+
+### Chores
+
+
+set tlsAllowInvalidCertificates according to NODE_TLS_REJECT_UNAUTHORIZED ([ed2cad7](https://github.com/sealsystems/node-mongo/commit/ed2cad7))
+
 ## 3.0.1 (2020-08-07)
 
 ### Bug Fixes
