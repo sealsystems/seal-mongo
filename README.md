@@ -129,7 +129,13 @@ if (fileFound) {
 
 ## TLS
 
-The module uses [@sealsystems/tlscert](https://github.com/sealsystems/tlscert) to obtain certificates for an encrypted connection to the database. The connection will only be encrypted if `TLS_UNPROTECTED` is set to `none` or `loopback`. Otherwise it is assumed that an unencrypted connection is save. If `@sealsystems/tlscert` provides a CA certificate, the host's certificate will be transmitted to the database server in order to allow client verification.
+The module uses [@sealsystems/tlscert](https://github.com/sealsystems/tlscert) to obtain certificates for an encrypted connection to the database.
+The connection will only be encrypted if `TLS_UNPROTECTED` is set to `none` or `loopback`. Otherwise it is assumed that an unencrypted connection
+is save. If `@sealsystems/tlscert` provides a CA certificate, the host's certificate will be transmitted to the database server in order to allow
+client verification.
+
+The MongoDB client option `tlsAllowInvalidCertificates` will be set according to `NODE_TLS_REJECT_UNAUTHORIZED`, so if invalid TLS certificates
+are allowed for NodeJS it's also allowd for MongoDB.
 
 ## Running the build
 

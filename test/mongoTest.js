@@ -18,7 +18,6 @@ const MockMongoClient = function(urlString, options) {
   };
 };
 
-let isFallback;
 const mongoMock = proxyquire('../lib/mongo', {
   async './setTlsOptions'(options) {
     options.sslCA = ['ca'];
@@ -30,13 +29,6 @@ const mongoMock = proxyquire('../lib/mongo', {
   },
   mongodb: {
     MongoClient: MockMongoClient
-  },
-  '@sealsystems/tlscert': {
-    async get() {
-      return {
-        isFallback
-      };
-    }
   }
 });
 
@@ -53,16 +45,15 @@ const connectionStringCursor = `mongodb://localhost:27017/cursor`;
 let restore;
 
 suite('mongo', () => {
-  suiteSetup(async () => {
-    restore = nodeenv('TLS_UNPROTECTED', 'world');
-  });
-
-  suiteTeardown(async () => {
-    restore();
-  });
-
   setup(async () => {
-    isFallback = true;
+    restore = nodeenv({
+      TLS_UNPROTECTED: 'world',
+      NODE_TLS_REJECT_UNAUTHORIZED: '0'
+    });
+  });
+
+  teardown(async () => {
+    restore();
   });
 
   test('is an object.', async () => {
@@ -134,7 +125,16 @@ suite('mongo', () => {
     });
 
     test('does validate if not own self sign certificates.', async () => {
-      isFallback = false;
+      restore = nodeenv('NODE_TLS_REJECT_UNAUTHORIZED', '2');
+      const connectOptions = await mongoMock.db(connectionStringBaz);
+
+      assert.that(connectOptions.tlsAllowInvalidCertificates).is.false();
+      restore();
+    });
+
+    test('does validate cert is the default.', async () => {
+      // eslint-disable-next-line no-process-env
+      delete process.env.NODE_TLS_REJECT_UNAUTHORIZED;
       const connectOptions = await mongoMock.db(connectionStringBaz);
 
       assert.that(connectOptions.tlsAllowInvalidCertificates).is.false();
