@@ -1,3 +1,10 @@
+## 3.0.4 (2020-12-21)
+
+### Chores
+
+
+Trigger release ([9600b2d](https://github.com/sealsystems/node-mongo/commit/9600b2d))
+
 ## 3.0.3 (2020-12-21)
 
 ### Chores
