@@ -1,3 +1,12 @@
+## 3.0.3 (2020-12-21)
+
+### Chores
+
+
+bump [@sealsystems](https://github.com/sealsystems)/log from 2.2.2 to 2.2.3 ([#135](https://github.com/sealsystems/node-mongo/issues/135)) ([dee6e53](https://github.com/sealsystems/node-mongo/commit/dee6e53))
+
+bump [@sealsystems](https://github.com/sealsystems)/tlscert from 2.3.8 to 2.3.9 ([#136](https://github.com/sealsystems/node-mongo/issues/136)) ([9989e36](https://github.com/sealsystems/node-mongo/commit/9989e36))
+
 ## 3.0.2 (2020-08-11)
 
 ### Chores
