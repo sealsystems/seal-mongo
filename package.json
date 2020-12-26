@@ -22,7 +22,7 @@
   "main": "lib/mongo.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sealsystems/mongo"
+    "url": "https://github.com/sealsystems/node-mongo"
   },
   "dependencies": {
     "@sealsystems/log": "2.2.3",
