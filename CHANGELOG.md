@@ -1,3 +1,12 @@
+## 3.0.5 (2020-12-26)
+
+### Chores
+
+
+Update build configuration ([e07e844](https://github.com/sealsystems/node-mongo/commit/e07e844))
+
+Update build configuration ([cca2632](https://github.com/sealsystems/node-mongo/commit/cca2632))
+
 ## 3.0.4 (2020-12-21)
 
 ### Chores
