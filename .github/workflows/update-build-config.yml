@@ -4,6 +4,8 @@ on:
   schedule:
     # 0:30
     - cron: "30 0 * * *"
+  workflow_dispatch:
+    # No inputs needed
 
 jobs:
   Update-Build-Configuration:
@@ -13,7 +15,7 @@ jobs:
       - uses: actions/checkout@v2
         # Use personal access token for cloning (and later pushing) code
         with:
-          token: ${{secrets.CI_TOKEN}}
+          token: ${{ secrets.CI_TOKEN }}
 
       - name: Prepare branch nightly/update-build-configuration
         run: |
@@ -42,19 +44,19 @@ jobs:
         run: npm i
         env:
           # Use personal access token, must be set for *each step*
-          NODE_AUTH_TOKEN: ${{secrets.CI_TOKEN}}
+          NODE_AUTH_TOKEN: ${{ secrets.CI_TOKEN }}
 
       - name: Install Yeoman
         run: npm install --no-save --force yo @sealsystems/generator-seal-node
         env:
           # Use personal access token, must be set for *each step*
-          NODE_AUTH_TOKEN: ${{secrets.CI_TOKEN}}
+          NODE_AUTH_TOKEN: ${{ secrets.CI_TOKEN }}
 
       - name: Update build config
         run: npx yo @sealsystems/seal-node:oss-module --force
         env:
           # Use personal access token, must be set for *each step*
-          NODE_AUTH_TOKEN: ${{secrets.CI_TOKEN}}
+          NODE_AUTH_TOKEN: ${{ secrets.CI_TOKEN }}
 
       - name: Check for modifications other than package-lock.json
         run: |
@@ -90,8 +92,8 @@ jobs:
             exit 0
           fi
 
-          if [ -n "com-infrastructure" ]; then
-            reviewerOption="--reviewer com-infrastructure"
+          if [ -n "sealsystems/com-infrastructure" ]; then
+            reviewerOption="--reviewer sealsystems/com-infrastructure"
           fi
 
           gh pr create \
@@ -101,4 +103,4 @@ jobs:
           This pull request will be merged automatically if there are no conflicts." \
           ${reviewerOption}
         env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{ secrets.CI_TOKEN }}
