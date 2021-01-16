@@ -1,3 +1,10 @@
+## 3.0.6 (2021-01-16)
+
+### Chores
+
+
+Update build config ([99830fc](https://github.com/sealsystems/node-mongo/commit/99830fc))
+
 ## 3.0.5 (2020-12-26)
 
 ### Chores
