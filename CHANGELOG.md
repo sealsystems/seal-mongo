@@ -1,3 +1,12 @@
+## 3.0.7 (2021-01-17)
+
+### Chores
+
+
+bump [@sealsystems](https://github.com/sealsystems)/log from 2.2.3 to 2.2.5 ([#155](https://github.com/sealsystems/node-mongo/issues/155)) ([8a16e14](https://github.com/sealsystems/node-mongo/commit/8a16e14))
+
+bump [@sealsystems](https://github.com/sealsystems)/tlscert from 2.3.9 to 2.3.14 ([#154](https://github.com/sealsystems/node-mongo/issues/154)) ([c1e9ff7](https://github.com/sealsystems/node-mongo/commit/c1e9ff7))
+
 ## 3.0.6 (2021-01-16)
 
 ### Chores
