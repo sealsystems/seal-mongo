@@ -1,3 +1,10 @@
+## 3.0.10 (2021-02-03)
+
+### Chores
+
+
+bump mongodb from 3.6.0 to 3.6.4 ([3ab942e](https://github.com/sealsystems/node-mongo/commit/3ab942e))
+
 ## 3.0.9 (2021-01-17)
 
 ### Chores
