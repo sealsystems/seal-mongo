@@ -1,3 +1,10 @@
+## 3.0.13 (2021-03-26)
+
+### Chores
+
+
+bump [@sealsystems](https://github.com/sealsystems)/log from 2.3.0 to 2.3.1 ([#180](https://github.com/sealsystems/node-mongo/issues/180)) ([4974f18](https://github.com/sealsystems/node-mongo/commit/4974f18))
+
 ## 3.0.12 (2021-03-26)
 
 ### Chores
