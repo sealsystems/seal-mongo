@@ -1,3 +1,12 @@
+## 3.1.0 (2021-04-01)
+
+### Features
+
+
+Allow to always encrypt connection via MONGODB_FORCE_TLS ([e3b683f](https://github.com/sealsystems/node-mongo/commit/e3b683f))
+
+Setting the environment variable `MONGODB_FORCE_TLS` overrides `TLS_UNPROTECTED` and enforces encrypted connections to MongoDB.
+
 ## 3.0.16 (2021-03-26)
 
 ### Chores
