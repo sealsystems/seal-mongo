@@ -1,3 +1,12 @@
+## 3.1.1 (2021-04-01)
+
+### Chores
+
+
+bump mongodb from 3.6.4 to 3.6.5 ([fa29454](https://github.com/sealsystems/node-mongo/commit/fa29454))
+
+bump processenv from 3.0.2 to 3.0.4 ([17bd0ec](https://github.com/sealsystems/node-mongo/commit/17bd0ec))
+
 ## 3.1.0 (2021-04-01)
 
 ### Features
