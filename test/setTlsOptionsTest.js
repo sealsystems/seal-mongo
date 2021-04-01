@@ -51,7 +51,18 @@ suite('setTlsOptions', () => {
     restore();
   });
 
-  test('enforces SSL encryption.', async () => {
+  test('sets TLS option if MONGODB_FORCE_TLS is given regardless of TLS_UNPROTECTED option.', async () => {
+    const options = { foo: 'bar' };
+    const restore = nodeenv({ TLS_UNPROTECTED: 'world', MONGODB_FORCE_TLS: 'true' });
+
+    await setTlsOptions(options);
+
+    assert.that(options.ssl).is.true();
+
+    restore();
+  });
+
+  test('enforces TLS encryption by default.', async () => {
     const options = { foo: 'bar' };
     const restore = nodeenv('TLS_UNPROTECTED', null);
 

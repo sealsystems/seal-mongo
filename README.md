@@ -134,6 +134,8 @@ The connection will only be encrypted if `TLS_UNPROTECTED` is set to `none` or `
 is save. If `@sealsystems/tlscert` provides a CA certificate, the host's certificate will be transmitted to the database server in order to allow
 client verification.
 
+To always enforce TLS encrypted connections to MongoDB, regardless of the value of `TLS_UNPROTECTED`, you can set `MONGODB_FORCE_TLS`to `true`.
+
 The MongoDB client option `tlsAllowInvalidCertificates` will be set according to `NODE_TLS_REJECT_UNAUTHORIZED`, so if invalid TLS certificates
 are allowed for NodeJS it's also allowd for MongoDB.
 
