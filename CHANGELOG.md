@@ -1,3 +1,10 @@
+## 3.1.3 (2021-05-31)
+
+### Chores
+
+
+bump [@sealsystems](https://github.com/sealsystems)/tlscert from 2.3.19 to 2.3.20 ([#203](https://github.com/sealsystems/node-mongo/issues/203)) ([b5680c7](https://github.com/sealsystems/node-mongo/commit/b5680c7))
+
 ## 3.1.2 (2021-05-31)
 
 ### Chores
